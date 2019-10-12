@@ -17,11 +17,7 @@
 ```bash
 apt update && apt install bc ffmpeg file flac -y
 ```
-<iframe width="560" height="315"
-src="https://youtu.be/_9-4-aBhBjM" 
-frameborder="0" 
-allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
-allowfullscreen></iframe>
+<img src="https://youtu.be/_9-4-aBhBjM">
 
 #### Before start script read this and change:
 <img src="https://i.postimg.cc/pXQd4K7c/change.png" alt="change"><br>
