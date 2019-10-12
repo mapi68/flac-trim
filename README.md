@@ -17,7 +17,7 @@
 ```bash
 apt update && apt install bc ffmpeg file flac -y
 ```
-<img src="https://youtu.be/_9-4-aBhBjM">
+<a href="https://youtu.be/_9-4-aBhBjM">YouTube Video</a>
 
 #### Before start script read this and change:
 <img src="https://i.postimg.cc/pXQd4K7c/change.png" alt="change"><br>
