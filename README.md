@@ -19,7 +19,7 @@ apt update && apt install bc ffmpeg file flac -y
 ```
 
 #### Before start script read this and change:
-<img src=https://i.postimg.cc/fL77JVyH/change.png" alt="change"><br>
+<img src="https://i.postimg.cc/fL77JVyH/change.png" alt="change"><br>
 
 ## License
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
