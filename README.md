@@ -5,8 +5,8 @@
 * [License](#license)
 
 ## Overview
-<b>FLAC-TRIM is more than a tool to normalize .flac files!</b><br>
-1) Normalize to 0dB
+<b>FLAC-TRIM is more than a simple tool to normalize .flac files!</b><br>
+1) RMS Normalization or ReplayGain
 2) Preserves all tag of original file
 3) Rename file with {ARTIST} - {TITLE}
 4) Extract cover
