@@ -14,7 +14,8 @@
 6) Removes the space at the beginning of the song
 7) Adds 0.25 seconds to the beginning of the song
 8) Can convert to .mp3 with LAME
-9) Can create playlist .m3u
+9) Can convert to .m4a
+10) Can create playlist .m3u
 
 <img src="https://i.postimg.cc/cH1wHWKw/FLAC-logo.png">
 
