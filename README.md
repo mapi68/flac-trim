@@ -16,6 +16,8 @@
 8) Can convert to .mp3 with LAME
 9) Can create playlist .m3u
 
+<img src="https://i.postimg.cc/cH1wHWKw/FLAC-logo.png">
+
 ## Installation
 ```bash
 apt update && apt install bc ffmpeg file flac -y
