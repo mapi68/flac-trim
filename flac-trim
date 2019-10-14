@@ -53,6 +53,8 @@ tput clear
 
 EXT=.flac
 MEXT=.mp3
+M4EXT=.m4a
+M4AQ=1.5
 ID=tag
 IMG=folder
 OR=1_original
@@ -81,7 +83,7 @@ echo "1) Desktop" && echo "2) Music" && echo
 read number
 echo
 echo "Please choose extension to save your file(s):"
-echo "1) FLAC" && echo "2) MP3" && echo
+echo "1) FLAC" && echo "2) MP3" && echo "3) M4A" && echo
 read number2
 if [ $number2 -eq 1 ]; then
 	echo
@@ -174,6 +176,15 @@ else
 					-c:a libmp3lame -q:a $MP3VBR -ar 44100 $PATHSAVE/"${FILE}"$MEXT -loglevel error
 				mv -f $PATHSAVE/"${FILE}"$MEXT $PATHSAVE/"${ARTIST} - ${TITLE}"$MEXT
 			fi
+			if [ $number2 -eq 3 ]; then
+				DBLEVEL=`echo "$DBLEVEL -0.5" | bc`
+				echo "To avoid possible clipping, RMS Normalization will be -0.5dB (adds +"$DBLEVEL"dB)"
+				echo && echo "Encoding to M4A with quality "$M4AQ": it will take time..."
+				ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-72dB","adelay=250|250" \
+					-metadata GENRE="$GENRE" \
+					-c:v copy -c:a aac -q:a $M4AQ -ar 44100 $PATHSAVE/"${FILE}"$M4EXT -loglevel error
+				mv -f $PATHSAVE/"${FILE}"$M4EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M4EXT
+			fi
 		fi
 		echo "*********** DONE! ***********"
 		echo
@@ -188,24 +199,31 @@ fi
 cd $PATHSAVE
 ls -1 | grep $EXT | sed -e 's/.flac//g' > plf
 ls -1 | grep $MEXT | sed -e 's/.mp3//g' > plm
+ls -1 | grep $M4EXT | sed -e 's/.m4a//g' > pl4
 
 if [[ $number4 -eq 2 ]]; then
-	echo "#EXTM3U" > 00-playlist.m3u
+	echo "#EXTM3U" > 00-flac_playlist.m3u
 	while read line; do
-		echo "${line}${EXT}" >> 00-playlist.m3u
+		echo "${line}${EXT}" >> 00-flac_playlist.m3u
 	done < plf
-	echo "#EXTM3U" > 01-playlist.m3u
+	echo "#EXTM3U" > 00-mp3_playlist.m3u
 	while read line; do
-		echo "${line}${MEXT}" >> 01-playlist.m3u
+		echo "${line}${MEXT}" >> 00-mp3_playlist.m3u
 	done < plm
+	echo "#EXTM3U" > 00-m4a_playlist.m3u
+	while read line; do
+		echo "${line}${M4EXT}" >> 00-m4a_playlist.m3u
+	done < pl4
 fi
 
-if [[ `cat 00-playlist.m3u | wc -c` = 8 ]]; then
-	rm 00-playlist.m3u; fi
-if [[ `cat 01-playlist.m3u | wc -c` = 8 ]]; then
-	rm 01-playlist.m3u; fi
+if [[ `cat 00-flac_playlist.m3u | wc -c` = 8 ]]; then
+	rm 00-flac_playlist.m3u; fi
+if [[ `cat 00-mp3_playlist.m3u | wc -c` = 8 ]]; then
+	rm 00-mp3_playlist.m3u; fi
+if [[ `cat 00-m4a_playlist.m3u | wc -c` = 8 ]]; then
+	rm 00-m4a_playlist.m3u; fi
 
-rm -f plf plm
+rm -f plf plm pl4
 rm -f $PATHLOAD/$ID
 
 exit 0
