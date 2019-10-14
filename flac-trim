@@ -52,6 +52,7 @@ GENRE="Disco" ### CHANGE                               #
 tput clear
 
 EXT=.flac
+MEXT=.mp3
 ID=tag
 IMG=folder
 OR=1_original
@@ -105,6 +106,10 @@ else
 	fi
 fi
 
+echo && echo "Do you want to create playlist.m3u?"
+echo "1) No" && echo "2) Yes" && echo
+read number4
+
 echo && echo "Please put your $EXT file(s) in $PATHLOAD"
 read -rsn1 -p "After press any key to continue"
 echo
@@ -127,6 +132,7 @@ else
 		TITLE=`grep TITLE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 		ALBUM=`grep ALBUM $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 		YEAR=`grep DATE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+		DURATION=`grep duration $ID | awk -F': "' '{print $2}' | cut -d'.' -f1`
 		DBLEVEL=`ffmpeg -i "${FILE}" -af "volumedetect" -f null /dev/null 2>&1 | grep max_volume | awk -F': ' '{print $2}' | cut -d' ' -f1`
 		COMPRESULT=`echo ${DBLEVEL}'<'0 | bc -l`
 		DBLEVEL=`echo "-(${DBLEVEL})" | bc -l`
@@ -139,6 +145,7 @@ else
 		echo "ALBUM:" $ALBUM
 		echo "SONG TITLE:" $TITLE
 		echo "FILE NAME:" "${ARTIST} - ${TITLE}${EXT}"
+		echo "DURATION:" `printf '%dm:%ds\n' $(($DURATION%3600/60)) $(($DURATION%60))`
 		echo "YEAR:" $YEAR
 		echo "SONG LEVEL: -$DBLEVEL dB"
 
@@ -164,8 +171,8 @@ else
 				ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-72dB","adelay=250|250" \
 					-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 					-metadata:s:0:1 comment="" -metadata:s:0:1 comment="Cover (front)" \
-					-c:a libmp3lame -q:a $MP3VBR -ar 44100 $PATHSAVE/"${FILE}".mp3 -loglevel error
-				mv -f $PATHSAVE/"${FILE}".mp3 $PATHSAVE/"${ARTIST} - ${TITLE}".mp3
+					-c:a libmp3lame -q:a $MP3VBR -ar 44100 $PATHSAVE/"${FILE}"$MEXT -loglevel error
+				mv -f $PATHSAVE/"${FILE}"$MEXT $PATHSAVE/"${ARTIST} - ${TITLE}"$MEXT
 			fi
 		fi
 		echo "*********** DONE! ***********"
@@ -175,10 +182,30 @@ else
 		echo && echo "Scanning for ReplayGain as album..."
 		metaflac --add-replay-gain $PATHSAVE/*$EXT
 	fi
-	echo && echo "***** All songs have been trimmed and/or converted! *****"
-	echo && echo
+	echo && echo "***** All songs have been trimmed and/or converted! *****" && echo
 fi
 
-rm -f $ID
+cd $PATHSAVE
+ls -1 | grep $EXT | sed -e 's/.flac//g' > plf
+ls -1 | grep $MEXT | sed -e 's/.mp3//g' > plm
+
+if [[ $number4 -eq 2 ]]; then
+	echo "#EXTM3U" > 00-playlist.m3u
+	while read line; do
+		echo "${line}${EXT}" >> 00-playlist.m3u
+	done < plf
+	echo "#EXTM3U" > 01-playlist.m3u
+	while read line; do
+		echo "${line}${MEXT}" >> 01-playlist.m3u
+	done < plm
+fi
+
+if [[ `cat 00-playlist.m3u | wc -c` = 8 ]]; then
+	rm 00-playlist.m3u; fi
+if [[ `cat 01-playlist.m3u | wc -c` = 8 ]]; then
+	rm 01-playlist.m3u; fi
+
+rm -f plf plm
+rm -f $PATHLOAD/$ID
 
 exit 0
