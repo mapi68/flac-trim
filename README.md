@@ -7,7 +7,7 @@
 ## Overview
 <b>FLAC-TRIM is more than a simple tool to RMS Normalization .flac files!</b><br>
 1) RMS Normalization or ReplayGain (single track or album)
-2) Preserves all tag of original file
+2) Preserves all tags of original file
 3) Rename file with {ARTIST} - {TITLE}
 4) Extract cover
 5) Adds personalized tag
