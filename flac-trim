@@ -57,6 +57,9 @@ M4EXT=.m4a
 M4AQ=1.5
 ID=tag
 IMG=folder
+PLF=00-flac_playlist.m3u
+PL3=00-mp3_playlist.m3u
+PL4=00-m4a_playlist.m3u
 OR=1_original
 TR=2_trimmed
 CO=3_cover
@@ -202,26 +205,26 @@ ls -1 | grep $MEXT | sed -e 's/.mp3//g' > plm
 ls -1 | grep $M4EXT | sed -e 's/.m4a//g' > pl4
 
 if [[ $number4 -eq 2 ]]; then
-	echo "#EXTM3U" > 00-flac_playlist.m3u
+	echo "#EXTM3U" > $PLF
 	while read line; do
-		echo "${line}${EXT}" >> 00-flac_playlist.m3u
+		echo "${line}${EXT}" >> $PLF
 	done < plf
-	echo "#EXTM3U" > 00-mp3_playlist.m3u
+	echo "#EXTM3U" > $PL3
 	while read line; do
-		echo "${line}${MEXT}" >> 00-mp3_playlist.m3u
+		echo "${line}${MEXT}" >> $PL3
 	done < plm
-	echo "#EXTM3U" > 00-m4a_playlist.m3u
+	echo "#EXTM3U" > $PL4
 	while read line; do
-		echo "${line}${M4EXT}" >> 00-m4a_playlist.m3u
+		echo "${line}${M4EXT}" >> $PL4
 	done < pl4
 fi
 
-if [[ `cat 00-flac_playlist.m3u | wc -c` = 8 ]]; then
-	rm 00-flac_playlist.m3u; fi
-if [[ `cat 00-mp3_playlist.m3u | wc -c` = 8 ]]; then
-	rm 00-mp3_playlist.m3u; fi
-if [[ `cat 00-m4a_playlist.m3u | wc -c` = 8 ]]; then
-	rm 00-m4a_playlist.m3u; fi
+if [[ -f $PLF && `cat $PLF | wc -c` = 8 ]]; then
+	rm $PLF; fi
+if [[ -f $PL3 && `cat $PL3 | wc -c` = 8 ]]; then
+	rm $PL3; fi
+if [[ -f $PL4 && `cat $PL4 | wc -c` = 8 ]]; then
+	rm $PL4; fi
 
 rm -f plf plm pl4
 rm -f $PATHLOAD/$ID
