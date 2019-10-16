@@ -80,6 +80,12 @@ ffmpeg_flac() {
 		-sample_fmt s16 -ar 44100 $PATHSAVE/"${FILE}" -loglevel error
 }
 
+list_song() {
+	cd $PATHSAVE && rm -f *.m3u
+	ls -1 | grep $EXT | sed -e 's/.flac//g' > plf
+	ls -1 | grep $MEXT | sed -e 's/.mp3//g' > pl3
+	ls -1 | grep $M4EXT | sed -e 's/.m4a//g' > pl4
+}
 
 echo "Please choose the directory to save your file(s):"
 echo "1) Desktop" && echo "2) Music" && echo
@@ -199,34 +205,39 @@ else
 	echo && echo "***** All songs have been trimmed and/or converted! *****" && echo
 fi
 
-cd $PATHSAVE
-ls -1 | grep $EXT | sed -e 's/.flac//g' > plf
-ls -1 | grep $MEXT | sed -e 's/.mp3//g' > plm
-ls -1 | grep $M4EXT | sed -e 's/.m4a//g' > pl4
-
 if [[ $number4 -eq 2 ]]; then
+	echo "Creating playlist..." && echo
+	list_song
 	echo "#EXTM3U" > $PLF
 	while read line; do
+		echo "#EXTINF:`ffprobe "${line}${EXT}" -v quiet -print_format json -show_format -hide_banner | \
+			grep duration | awk -F'\": \"' '{print $2}' | cut -d'.' -f1`,${line}" >> $PLF
 		echo "${line}${EXT}" >> $PLF
 	done < plf
 	echo "#EXTM3U" > $PL3
 	while read line; do
+		echo "#EXTINF:`ffprobe "${line}${MEXT}" -v quiet -print_format json -show_format -hide_banner | \
+			grep duration | awk -F'\": \"' '{print $2}' | cut -d'.' -f1`,${line}" >> $PL3
 		echo "${line}${MEXT}" >> $PL3
-	done < plm
+	done < pl3
 	echo "#EXTM3U" > $PL4
 	while read line; do
+		echo "#EXTINF:`ffprobe "${line}${M4EXT}" -v quiet -print_format json -show_format -hide_banner | \
+			grep duration | awk -F'\": \"' '{print $2}' | cut -d'.' -f1`,${line}" >> $PL4
 		echo "${line}${M4EXT}" >> $PL4
 	done < pl4
+	if [[ -f $PLF && `cat $PLF | wc -c` = 8 ]]; then
+		rm $PLF; fi
+	if [[ -f $PL3 && `cat $PL3 | wc -c` = 8 ]]; then
+		rm $PL3; fi
+	if [[ -f $PL4 && `cat $PL4 | wc -c` = 8 ]]; then
+		rm $PL4; fi
+	echo "*********** ALL DONE! ***********"
+	echo
 fi
 
-if [[ -f $PLF && `cat $PLF | wc -c` = 8 ]]; then
-	rm $PLF; fi
-if [[ -f $PL3 && `cat $PL3 | wc -c` = 8 ]]; then
-	rm $PL3; fi
-if [[ -f $PL4 && `cat $PL4 | wc -c` = 8 ]]; then
-	rm $PL4; fi
 
-rm -f plf plm pl4
+rm -f plf pl3 pl4
 rm -f $PATHLOAD/$ID
 
 exit 0
