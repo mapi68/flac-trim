@@ -116,12 +116,15 @@ read number2
 if [ $number2 -eq 3 ]; then
 	echo
 	echo "Please choose AAC encoder:"
-	echo "1) AAC (good quality)" && echo "2) LIBFDK_AAC (better quality, but need ffmpeg compiled with libfdk_aac)" && echo
+	echo "1) AAC (good quality)" && echo "2) AAC (medium quality)" && echo "3) LIBFDK_AAC (better quality, but need ffmpeg compiled with libfdk_aac)" && echo
 	read number5
 	echo
-	if [ $number5 -eq 2 ]; then
+	if [ $number5 -eq 3 ]; then
 		LIB4=libfdk_aac
 		M4AQ="-vbr 5"
+	elif [ $number5 -eq 2 ]; then
+		LIB4=aac
+		M4AQ="-q:a 1.2"
 	else
 		LIB4=aac
 		M4AQ="-q:a 1.5"
@@ -162,91 +165,87 @@ cd $PATHLOAD
 
 if [[ `ls -1 | grep $EXT | wc -l` = 0 ]]; then
 	echo && echo "Not found files with" $EXT "extension in" $PATHLOAD
-	echo "Please restart script" && echo && echo
-else
-	echo && echo "Found" `ls -1 | grep $EXT | wc -l` "file(s) with" $EXT "extension in" $PATHLOAD && echo && echo && sleep 1
-	n=0
-
-	for FILE in *${EXT}; do
-		let n=n+1
-		echo "Processing file" $n "of" `ls -1 | grep $EXT | wc -l`...
-		echo "`ffprobe -i "${FILE}" -v quiet -print_format json -show_format -hide_banner`" > $ID
-		sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" $ID
-		ARTIST=`grep ARTIST $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-		TITLE=`grep TITLE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-		ALBUM=`grep ALBUM $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-		YEAR=`grep DATE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-		DURATION=`grep duration $ID | awk -F': "' '{print $2}' | cut -d'.' -f1`
-		DBLEVEL=`ffmpeg -i "${FILE}" -af "volumedetect" -f null /dev/null 2>&1 | grep max_volume | awk -F': ' '{print $2}' | cut -d' ' -f1`
-		COMPRESULT=`echo ${DBLEVEL}'<'0 | bc -l`
-		DBLEVEL=`echo "-(${DBLEVEL})" | bc -l`
-
-		metaflac --export-picture-to="${PATHIMG}"/"${IMG}" "${FILE}"
-		IMGEXT=`file "${PATHIMG}"/"${IMG}" | awk -F': ' '{print $2}' | cut -d' ' -f1 | sed -e 's/\(.*\)/\L\1/'`
-		mv "${PATHIMG}"/"${IMG}" "${PATHIMG}"/"${ARTIST} - ${ALBUM} ($YEAR).${IMGEXT}"
-
-		echo "ARTIST:" $ARTIST
-		echo "ALBUM:" $ALBUM
-		echo "SONG TITLE:" $TITLE
-		echo "FILE NAME:" "${ARTIST} - ${TITLE}${EXT}"
-		echo "DURATION:" `printf '%dm:%ds\n' $(($DURATION%3600/60)) $(($DURATION%60))`
-		echo "YEAR:" $YEAR
-		echo "SONG LEVEL: -$DBLEVEL dB"
-
-		if [ $number2 -eq 1 ]; then
-			if [ $number3 -eq 2 ]; then
-				ffmpeg_flac
-				bitrate_flac
-				mv -f $PATHSAVE/"${FILE}" $PATHSAVE/"${ARTIST} - ${TITLE}${EXT}"
-				echo "Scanning for ReplayGain as track..."
-				metaflac --add-replay-gain $PATHSAVE/"${ARTIST} - ${TITLE}${EXT}"
-			else
-				if [ $number3 -eq 1 ]; then
-					ffmpeg_flac_norm
-					bitrate_flac
-					mv -f $PATHSAVE/"${FILE}" $PATHSAVE/"${ARTIST} - ${TITLE}${EXT}"
-				else
-					if [ $number3 -eq 3 ]; then
-						ffmpeg_flac
-						bitrate_flac
-						mv -f $PATHSAVE/"${FILE}" $PATHSAVE/"${ARTIST} - ${TITLE}${EXT}"
-					fi
-				fi
-			fi
-		else
-			if [ $number2 -eq 2 ]; then
-				DBLEVEL=`echo "$DBLEVEL -0.5" | bc`
-				echo "To avoid possible clipping, RMS Normalization will be -0.5dB (adds +"$DBLEVEL"dB)"
-				echo && echo "Encoding to MP3 with VBR "$MP3VBR": it will take time..."
-				ffmpeg_mp3
-				echo "`ffprobe -i $PATHSAVE/"${FILE}"$M3EXT -v quiet -print_format json -show_format -hide_banner`" > $ID
-				BITRATE=`grep bit_rate $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-				echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
-				mv -f $PATHSAVE/"${FILE}"$M3EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M3EXT
-			fi
-			if [ $number2 -eq 3 ]; then
-				DBLEVEL=`echo "$DBLEVEL -0.5" | bc`
-				echo "To avoid possible clipping, RMS Normalization will be -0.5dB (adds +"$DBLEVEL"dB)"
-				echo && echo "Encoding to M4A with library "$LIB4" and "$M4AQ": it will take time..."
-				ffmpeg_m4a
-				echo "`ffprobe -i $PATHSAVE/"${FILE}"$M4EXT -v quiet -print_format json -show_format -hide_banner`" > $ID
-				BITRATE=`grep bit_rate $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-				echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
-				mv -f $PATHSAVE/"${FILE}"$M4EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M4EXT
-			fi
-		fi
-		echo "*********** DONE! ***********"
-		echo
-	done
-	if [ $number3 -eq 3 ]; then
-		echo && echo "Scanning for ReplayGain as album..."
-		metaflac --add-replay-gain $PATHSAVE/*$EXT
-	fi
-	echo && echo "***** All songs have been trimmed and/or converted! *****" && echo
+	echo "Please restart script"
+	echo && echo
+	exit 0
 fi
 
+echo && echo "Found" `ls -1 | grep $EXT | wc -l` "file(s) with" $EXT "extension in" $PATHLOAD && echo && echo && sleep 1
+n=0
+for FILE in *${EXT}; do
+	let n=n+1
+	echo "Processing file" $n "of" `ls -1 | grep $EXT | wc -l`...
+	echo "`ffprobe -i "${FILE}" -v quiet -print_format json -show_format -hide_banner`" > $ID
+	sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" $ID
+	ARTIST=`grep ARTIST $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+	TITLE=`grep TITLE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+	ALBUM=`grep ALBUM $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+	YEAR=`grep DATE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+	DURATION=`grep duration $ID | awk -F': "' '{print $2}' | cut -d'.' -f1`
+	DBLEVEL=`ffmpeg -i "${FILE}" -af "volumedetect" -f null /dev/null 2>&1 | grep max_volume | awk -F': ' '{print $2}' | cut -d' ' -f1`
+	COMPRESULT=`echo ${DBLEVEL}'<'0 | bc -l`
+	DBLEVEL=`echo "-(${DBLEVEL})" | bc -l`
+
+	metaflac --export-picture-to="${PATHIMG}"/"${IMG}" "${FILE}"
+	IMGEXT=`file "${PATHIMG}"/"${IMG}" | awk -F': ' '{print $2}' | cut -d' ' -f1 | sed -e 's/\(.*\)/\L\1/'`
+	mv "${PATHIMG}"/"${IMG}" "${PATHIMG}"/"${ARTIST} - ${ALBUM} ($YEAR).${IMGEXT}"
+
+	echo "ARTIST:" $ARTIST
+	echo "ALBUM:" $ALBUM
+	echo "SONG TITLE:" $TITLE
+	echo "FILE NAME:" "${ARTIST} - ${TITLE}${EXT}"
+	echo "DURATION:" `printf '%dm:%ds\n' $(($DURATION%3600/60)) $(($DURATION%60))`
+	echo "YEAR:" $YEAR
+	echo "SONG LEVEL: -$DBLEVEL dB"
+
+	if [ $number2 -eq 1 ]; then
+		if [ $number3 -eq 2 ]; then
+			ffmpeg_flac
+			bitrate_flac
+			mv -f $PATHSAVE/"${FILE}" $PATHSAVE/"${ARTIST} - ${TITLE}${EXT}"
+			echo "Scanning for ReplayGain as track..."
+			metaflac --add-replay-gain $PATHSAVE/"${ARTIST} - ${TITLE}${EXT}"
+		elif [ $number3 -eq 1 ]; then
+			ffmpeg_flac_norm
+			bitrate_flac
+			mv -f $PATHSAVE/"${FILE}" $PATHSAVE/"${ARTIST} - ${TITLE}${EXT}"
+		elif [ $number3 -eq 3 ]; then
+			ffmpeg_flac
+			bitrate_flac
+			mv -f $PATHSAVE/"${FILE}" $PATHSAVE/"${ARTIST} - ${TITLE}${EXT}"
+		fi
+	else
+		if [ $number2 -eq 2 ]; then
+			DBLEVEL=`echo "$DBLEVEL -0.5" | bc`
+			echo "To avoid possible clipping, RMS Normalization will be -0.5dB (adds +"$DBLEVEL"dB)"
+			echo && echo "Encoding to MP3 with VBR "$MP3VBR": it will take time..."
+			ffmpeg_mp3
+			echo "`ffprobe -i $PATHSAVE/"${FILE}"$M3EXT -v quiet -print_format json -show_format -hide_banner`" > $ID
+			BITRATE=`grep bit_rate $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+			echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
+			mv -f $PATHSAVE/"${FILE}"$M3EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M3EXT
+		elif [ $number2 -eq 3 ]; then
+			DBLEVEL=`echo "$DBLEVEL -0.5" | bc`
+			echo "To avoid possible clipping, RMS Normalization will be -0.5dB (adds +"$DBLEVEL"dB)"
+			echo && echo "Encoding to M4A with library "$LIB4" and "$M4AQ": it will take time..."
+			ffmpeg_m4a
+			echo "`ffprobe -i $PATHSAVE/"${FILE}"$M4EXT -v quiet -print_format json -show_format -hide_banner`" > $ID
+			BITRATE=`grep bit_rate $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+			echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
+			mv -f $PATHSAVE/"${FILE}"$M4EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M4EXT
+		fi
+	fi
+	echo "*********** DONE! ***********"
+	echo
+done
+if [ $number3 -eq 3 ]; then
+	echo && echo "Scanning for ReplayGain as album..."
+	metaflac --add-replay-gain $PATHSAVE/*$EXT
+fi
+echo && echo "***** All songs have been trimmed and/or converted! *****" && echo
+
 if [[ $number4 -eq 2 ]]; then
-	echo "Creating playlist..." && echo
+	echo "Creating playlist in alphabetical order..." && echo
 	list_song
 	echo "#EXTM3U" > $PLF
 	while read line; do
@@ -267,11 +266,12 @@ if [[ $number4 -eq 2 ]]; then
 		echo "${line}${M4EXT}" >> $PL4
 	done < pl4
 	if [[ -f $PLF && `cat $PLF | wc -c` = 8 ]]; then
-		rm $PLF; fi
-	if [[ -f $PL3 && `cat $PL3 | wc -c` = 8 ]]; then
-		rm $PL3; fi
-	if [[ -f $PL4 && `cat $PL4 | wc -c` = 8 ]]; then
-		rm $PL4; fi
+		rm $PLF
+	elif [[ -f $PL3 && `cat $PL3 | wc -c` = 8 ]]; then
+		rm $PL3
+	elif [[ -f $PL4 && `cat $PL4 | wc -c` = 8 ]]; then
+		rm $PL4
+	fi
 	echo "*********** ALL DONE! ***********"
 	echo
 fi
