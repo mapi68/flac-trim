@@ -174,7 +174,7 @@ read -rsn1 -p "After press any key to continue"
 echo
 
 
-if [[ `ls -1 | grep $PATHLOAD/$EXT | wc -l` = 0 ]]; then
+if [[ `ls -1 $PATHLOAD | grep $EXT | wc -l` = 0 ]]; then
 	tput clear
 	echo "Not found files with" $EXT "extension in" $PATHLOAD
 	for i in {7..1}; do
