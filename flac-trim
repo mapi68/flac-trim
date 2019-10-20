@@ -173,12 +173,11 @@ echo && echo "Please put your $EXT file(s) in $PATHLOAD"
 read -rsn1 -p "After press any key to continue"
 echo
 
-cd $PATHLOAD
 
-if [[ `ls -1 | grep $EXT | wc -l` = 0 ]]; then
+if [[ `ls -1 | grep $PATHLOAD/$EXT | wc -l` = 0 ]]; then
 	tput clear
 	echo "Not found files with" $EXT "extension in" $PATHLOAD
-	for i in {5..1}; do
+	for i in {7..1}; do
 		tput cup 2 $l
 		echo "Restarting script in $i seconds..." && echo
 		sleep 1
@@ -187,6 +186,7 @@ if [[ `ls -1 | grep $EXT | wc -l` = 0 ]]; then
 	exec ./$FT
 fi
 
+cd $PATHLOAD
 
 echo && echo "Found" `ls -1 | grep $EXT | wc -l` "file(s) with" $EXT "extension in" $PATHLOAD && echo && echo && sleep 1
 n=0
