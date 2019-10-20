@@ -15,13 +15,14 @@
 7) Adds 0.25 seconds to the beginning of the song
 8) Can convert to .mp3 with LAME
 9) Can convert to .m4a
-10) Can create playlist .m3u
+10) Can convert to .opus
+11) Can create playlist .m3u
 
 <img src="https://i.postimg.cc/cH1wHWKw/FLAC-logo.png">
 
 ## Installation
 ```bash
-apt update && apt install bc ffmpeg file flac -y
+apt update && apt install bc ffmpeg file flac opus-tools -y
 ```
 <a href="https://youtu.be/NIq456R0ESw">YouTube Video</a>
 
