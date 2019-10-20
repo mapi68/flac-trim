@@ -22,7 +22,7 @@
 #################################################################################
 
 
-# apt update && apt install bc ffmpeg file flac opus-tools -y
+# apt update && apt install bc ffmpeg file flac -y
 
 ######################## CHANGE ########################
 PATH1=/mnt/c/Users/mpiss/Desktop/flac ### CHANGE       #
