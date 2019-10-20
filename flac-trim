@@ -22,7 +22,7 @@
 #################################################################################
 
 
-# apt update && apt install bc ffmpeg file flac -y
+# apt update && apt install bc ffmpeg file flac opus-tools -y
 
 ######################## CHANGE ########################
 PATH1=/mnt/c/Users/mpiss/Desktop/flac ### CHANGE       #
@@ -44,7 +44,7 @@ MP3VBR=3 ### CHANGE                                    #
 ##########################################             #
 #                                                      #
 ENCODEDBY="Massimo Bremi DJ" ### CHANGE                #
-GENRE="Disco" ### CHANGE                               #
+GENRE="" ### CHANGE                                    #
 #                                                      #
 ########################################################
 
@@ -117,7 +117,8 @@ read number2
 if [ $number2 -eq 3 ]; then
 	echo
 	echo "Please choose AAC encoder:"
-	echo "1) AAC (good quality)" && echo "2) AAC (medium quality)" && echo "3) LIBFDK_AAC (better quality, but need ffmpeg compiled with libfdk_aac)" && echo
+	echo "1) AAC (good quality)" && echo "2) AAC (medium quality)"
+	echo "3) LIBFDK_AAC (highest quality without cut frequencies, but needs ffmpeg compiled with libfdk_aac)" && echo
 	read number5
 	echo
 	if [ $number5 -eq 3 ]; then
@@ -224,7 +225,7 @@ for FILE in *${EXT}; do
 	else
 		if [ $number2 -eq 2 ]; then
 			DBLEVEL=`echo "$DBLEVEL -0.5" | bc`
-			echo "To avoid possible clipping, RMS Normalization will be -0.5dB (adds +"$DBLEVEL"dB)"
+			echo "To avoid possible clipping, RMS Normalization will be -0.5 dB (adds +"$DBLEVEL" dB)"
 			echo && echo "Encoding to MP3 with VBR "$MP3VBR": it will take time..."
 			ffmpeg_mp3
 			echo "`ffprobe -i $PATHSAVE/"${FILE}"$M3EXT -v quiet -print_format json -show_format -hide_banner`" > $ID
@@ -232,8 +233,8 @@ for FILE in *${EXT}; do
 			echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
 			mv -f $PATHSAVE/"${FILE}"$M3EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M3EXT
 		elif [ $number2 -eq 3 ]; then
-			DBLEVEL=`echo "$DBLEVEL -0.5" | bc`
-			echo "To avoid possible clipping, RMS Normalization will be -0.5dB (adds +"$DBLEVEL"dB)"
+			DBLEVEL=`echo "$DBLEVEL -0.3" | bc`
+			echo "To avoid possible clipping, RMS Normalization will be -0.3 dB (adds +"$DBLEVEL" dB)"
 			echo && echo "Encoding to M4A with library "$LIB4" and "$M4AQ": it will take time..."
 			ffmpeg_m4a
 			echo "`ffprobe -i $PATHSAVE/"${FILE}"$M4EXT -v quiet -print_format json -show_format -hide_banner`" > $ID
