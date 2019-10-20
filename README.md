@@ -14,7 +14,7 @@
 6) Removes the space at the beginning of the song
 7) Adds 0.25 seconds to the beginning of the song
 8) Can convert to .mp3 with LAME
-9) Can convert to .m4a
+9) Can convert to .m4a with LIBFDK_AAC
 10) Can convert to .opus
 11) Can create playlist .m3u
 
