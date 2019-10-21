@@ -133,7 +133,7 @@ echo "    / _| | __ _  ___     | |_ _ __(_)_ __ ___ "
 echo "   | |_| |/ _\` |/ __|____| __| '__| | '_ \` _ \ "
 echo "   |  _| | (_| | (_|_____| |_| |  | | | | | | | "
 echo "   |_| |_|\__,_|\___|     \__|_|  |_|_| |_| |_| "
-echo -e '\e[0m'
+echo -e '\e[0m' && echo
 
 
 echo  -e '\e[93m'"Please choose the directory to save your file(s):"
@@ -203,7 +203,6 @@ if [[ `ls -1 $PATHLOAD | grep $EXT | wc -l` = 0 ]]; then
 	script_restart; fi
 
 cd $PATHLOAD
-
 echo && echo "Found" `ls -1 | grep $EXT | wc -l` "file(s) with" $EXT "extension in" $PATHLOAD && echo -e '\e[0m' && echo && sleep 1
 n=0
 for FILE in *${EXT}; do
@@ -254,8 +253,8 @@ for FILE in *${EXT}; do
 		fi
 	else
 		if [ $number2 -eq 2 ]; then
-			DBLEVEL=`echo "$DBLEVEL -0.5" | bc`
-			echo "To avoid possible clipping, RMS Normalization will be -0.5 dB (adds "$DBLEVEL" dB)"
+			DBLEVEL=`echo "$DBLEVEL -0.55" | bc`
+			echo "To avoid possible clipping, RMS Normalization will be -0.55 dB (adds "$DBLEVEL" dB)"
 			echo && echo "Encoding to MP3 with VBR "$MP3VBR": it will take time..."
 			ffmpeg_mp3
 			echo "`ffprobe -i $PATHSAVE/"${FILE}"$M3EXT -v quiet -print_format json -show_format -hide_banner`" > $ID
@@ -281,8 +280,8 @@ for FILE in *${EXT}; do
 			echo $SIZE | awk '{abc=$1/1024/1024; print "Size of output file is " abc " MB"}'
 			mv -f $PATHSAVE/"${FILE}"$M4EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M4EXT
 		elif [ $number2 -eq 4 ]; then
-			DBLEVEL=`echo "$DBLEVEL -0.65" | bc`
-			echo "To avoid possible clipping, RMS Normalization will be -0.65 dB (adds "$DBLEVEL" dB)"
+			DBLEVEL=`echo "$DBLEVEL -0.6" | bc`
+			echo "To avoid possible clipping, RMS Normalization will be -0.6 dB (adds "$DBLEVEL" dB)"
 			ffmpeg_opus
 			echo && echo "Encoding to OPUS: it will take time..."
 			opusenc $PATHSAVE/"${FILE}" $PATHSAVE/"${FILE}"$OPUSEXT --quiet
@@ -295,7 +294,7 @@ for FILE in *${EXT}; do
 			mv -f $PATHSAVE/"${FILE}"$OPUSEXT $PATHSAVE/"${ARTIST} - ${TITLE}"$OPUSEXT
 		fi
 	fi
-	echo "*********** DONE! ***********"
+	echo "****************** DONE! *******************"
 	echo
 done
 if [ $number3 -eq 3 ]; then
