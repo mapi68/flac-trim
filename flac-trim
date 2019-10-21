@@ -127,6 +127,20 @@ script_restart() {
 	exec ./$FT
 }
 
+export_cover() {
+	metaflac --export-picture-to="${PATHIMG}"/"${IMG}" "${FILE}"
+	IMGEXT=`file "${PATHIMG}"/"${IMG}" | awk -F': ' '{print $2}' | cut -d' ' -f1 | sed -e 's/\(.*\)/\L\1/'`
+	mv "${PATHIMG}"/"${IMG}" "${PATHIMG}"/"${ARTIST} - ${ALBUM} ($YEAR).${IMGEXT}"
+}
+
+file_check() {
+	echo && echo -e '\e[95m'"Please check if your $EXT file(s) are in $PATHLOAD"
+	read -rsn1 -p "After press any key to continue"
+	echo -e '\e[96m'
+	if [[ `ls -1 $PATHLOAD | grep $EXT | wc -l` = 0 ]]; then
+		script_restart; fi
+}
+
 
 echo -e '\e[92m'"     __ _                 _        _ "
 echo "    / _| | __ _  ___     | |_ _ __(_)_ __ ___ "
@@ -135,18 +149,50 @@ echo "   |  _| | (_| | (_|_____| |_| |  | | | | | | | "
 echo "   |_| |_|\__,_|\___|     \__|_|  |_|_| |_| |_| "
 echo -e '\e[0m' && echo
 
-
-echo  -e '\e[93m'"Please choose the directory to save your file(s):"
+echo  -e '\e[93m'"Please choose the directory where you saved your $EXT file(s):"
 echo "1) Desktop" && echo "2) Music" && echo
 read number
 if [ "$number" -ne 1 ] && [ "$number" -ne 2 ]; then
-	script_restart; fi
+	script_restart
+elif [ $number -eq 1 ]; then
+	mkdir -p $PATH1/$OR $PATH1/$TR $PATH1/$CO
+	PATHLOAD=$PATH1/$OR
+	PATHSAVE=$PATH1/$TR
+	PATHIMG=$PATH1/$CO
+elif [ $number -eq 2 ]; then
+	mkdir -p $PATH2/$OR $PATH2/$TR $PATH2/$CO
+	PATHLOAD=$PATH2/$OR
+	PATHSAVE=$PATH2/$TR
+	PATHIMG=$PATH2/$CO
+fi
 echo
 echo "Please choose extension to save your file(s):"
-echo "1) FLAC" && echo "2) MP3" && echo "3) M4A" && echo "4) OPUS" && echo
+echo "1) FLAC" && echo "2) MP3" && echo "3) M4A" && echo "4) OPUS"
+echo "5) I want ONLY to save ALL cover in $PATHIMG" && echo
 read number2
-if [ "$number2" -ne 1 ] && [ "$number2" -ne 2 ] && [ "$number2" -ne 3 ] && [ "$number2" -ne 4 ]; then
+if [ "$number2" -ne 1 ] && [ "$number2" -ne 2 ] && [ "$number2" -ne 3 ] && [ "$number2" -ne 4 ] && [ "$number2" -ne 5 ]; then
 	script_restart; fi
+
+n=0
+if [ $number2 -eq 5 ]; then 
+	cd $PATHLOAD
+	file_check
+	echo -e '\e[96m' && echo "Found" `ls -1 | grep $EXT | wc -l` "file(s) with" $EXT "extension in" $PATHLOAD && echo -e '\e[0m' && echo && sleep 1
+	for FILE in *${EXT}; do
+		let n=n+1
+		echo "`ffprobe -i "${FILE}" -v quiet -print_format json -show_format -hide_banner`" > $ID
+		sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" $ID
+		ARTIST=`grep ARTIST $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+		ALBUM=`grep ALBUM $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+		YEAR=`grep DATE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+		echo "Processing cover file" $n "of" `ls -1 | grep $EXT | wc -l`": $ARTIST - $ALBUM ($YEAR)" 
+		export_cover
+	done
+	rm -f $ID
+	echo && echo -e '\e[92m'"********************* ALL DONE! *********************"
+	echo -e '\e[0m' && echo
+	exit 1
+fi
 if [ $number2 -eq 3 ]; then
 	echo
 	echo "Please choose AAC encoder:"
@@ -178,30 +224,12 @@ else
 	number3=0
 fi
 
-if [ $number -eq 1 ]; then
-	mkdir -p $PATH1/$OR $PATH1/$TR $PATH1/$CO
-	PATHLOAD=$PATH1/$OR
-	PATHSAVE=$PATH1/$TR
-	PATHIMG=$PATH1/$CO
-elif [ $number -eq 2 ]; then
-	mkdir -p $PATH2/$OR $PATH2/$TR $PATH2/$CO
-	PATHLOAD=$PATH2/$OR
-	PATHSAVE=$PATH2/$TR
-	PATHIMG=$PATH2/$CO
-fi
-
 echo && echo "Do you want to create playlist.m3u?"
 echo "1) No" && echo "2) Yes" && echo
 read number4
 if [ "$number4" -ne 1 ] && [ "$number4" -ne 2 ]; then
 	script_restart; fi
-
-echo && echo -e '\e[95m'"Please put your $EXT file(s) in $PATHLOAD"
-read -rsn1 -p "After press any key to continue"
-echo -e '\e[96m'
-if [[ `ls -1 $PATHLOAD | grep $EXT | wc -l` = 0 ]]; then
-	script_restart; fi
-
+file_check
 cd $PATHLOAD
 echo && echo "Found" `ls -1 | grep $EXT | wc -l` "file(s) with" $EXT "extension in" $PATHLOAD && echo -e '\e[0m' && echo && sleep 1
 n=0
@@ -221,9 +249,7 @@ for FILE in *${EXT}; do
 	COMPRESULT=`echo ${DBLEVEL}'<'0 | bc -l`
 	DBLEVEL=`echo "-(${DBLEVEL})" | bc -l`
 
-	metaflac --export-picture-to="${PATHIMG}"/"${IMG}" "${FILE}"
-	IMGEXT=`file "${PATHIMG}"/"${IMG}" | awk -F': ' '{print $2}' | cut -d' ' -f1 | sed -e 's/\(.*\)/\L\1/'`
-	mv "${PATHIMG}"/"${IMG}" "${PATHIMG}"/"${ARTIST} - ${ALBUM} ($YEAR).${IMGEXT}"
+	export_cover
 
 	echo "ARTIST:" $ARTIST
 	echo "ALBUM:" $ALBUM
