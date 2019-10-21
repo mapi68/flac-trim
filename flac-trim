@@ -25,10 +25,9 @@
 
 ######################## CHANGE ########################
 PATH1=/mnt/c/Users/mpiss/Desktop/flac ### CHANGE       #
-PATH2=/mnt/d/Music/digital/flac ### CHANGE             #
+PATH2=/mnt/d/Z-flac ### CHANGE                         #
 ########################################################
 #                                                      #
-MP3VBR=3 ### CHANGE                                    #
 ############ MP3 VBR Encoding ############             #
 # Average kbit/s | Range kbit/s | OPTION #             #
 #       225      |    190-250   |    1   #             #
@@ -57,6 +56,7 @@ M4EXT=.m4a
 OPUSEXT=.opus
 ID=tag
 IMG=folder
+MP3VBR=3
 PLF=00-flac_playlist.m3u
 PL3=00-mp3_playlist.m3u
 PL4=00-m4a_playlist.m3u
@@ -136,7 +136,7 @@ echo "   |_| |_|\__,_|\___|     \__|_|  |_|_| |_| |_| "
 echo -e '\e[0m'
 
 
-echo "Please choose the directory to save your file(s):"
+echo  -e '\e[93m'"Please choose the directory to save your file(s):"
 echo "1) Desktop" && echo "2) Music" && echo
 read number
 if [ "$number" -ne 1 ] && [ "$number" -ne 2 ]; then
@@ -196,15 +196,15 @@ read number4
 if [ "$number4" -ne 1 ] && [ "$number4" -ne 2 ]; then
 	script_restart; fi
 
-echo && echo "Please put your $EXT file(s) in $PATHLOAD"
+echo && echo -e '\e[95m'"Please put your $EXT file(s) in $PATHLOAD"
 read -rsn1 -p "After press any key to continue"
-echo
+echo -e '\e[96m'
 if [[ `ls -1 $PATHLOAD | grep $EXT | wc -l` = 0 ]]; then
 	script_restart; fi
 
 cd $PATHLOAD
 
-echo && echo "Found" `ls -1 | grep $EXT | wc -l` "file(s) with" $EXT "extension in" $PATHLOAD && echo && echo && sleep 1
+echo && echo "Found" `ls -1 | grep $EXT | wc -l` "file(s) with" $EXT "extension in" $PATHLOAD && echo -e '\e[0m' && echo && sleep 1
 n=0
 for FILE in *${EXT}; do
 	let n=n+1
@@ -216,6 +216,7 @@ for FILE in *${EXT}; do
 	ALBUM=`grep ALBUM $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	YEAR=`grep DATE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	DURATION=`grep duration $ID | awk -F': "' '{print $2}' | cut -d'.' -f1`
+	BITRATE=`grep bit_rate $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	SIZE=`grep size $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	DBLEVEL=`ffmpeg -i "${FILE}" -af "volumedetect" -f null /dev/null 2>&1 | grep max_volume | awk -F': ' '{print $2}' | cut -d' ' -f1`
 	COMPRESULT=`echo ${DBLEVEL}'<'0 | bc -l`
@@ -231,6 +232,7 @@ for FILE in *${EXT}; do
 	echo "FILE NAME:" "${ARTIST} - ${TITLE}${EXT}"
 	echo "YEAR:" $YEAR
 	echo "DURATION:" `printf '%dm:%ds\n' $(($DURATION%3600/60)) $(($DURATION%60))`
+	echo "BITRATE: $(($BITRATE/1024)) kBit/s"
 	echo $SIZE | awk '{abc=$1/1024/1024; print "SIZE: " abc " MB"}'
 	echo "SONG LEVEL: -$DBLEVEL dB"
 
@@ -252,8 +254,8 @@ for FILE in *${EXT}; do
 		fi
 	else
 		if [ $number2 -eq 2 ]; then
-			DBLEVEL=`echo "$DBLEVEL -0.65" | bc`
-			echo "To avoid possible clipping, RMS Normalization will be -0.65 dB (adds +"$DBLEVEL" dB)"
+			DBLEVEL=`echo "$DBLEVEL -0.5" | bc`
+			echo "To avoid possible clipping, RMS Normalization will be -0.5 dB (adds "$DBLEVEL" dB)"
 			echo && echo "Encoding to MP3 with VBR "$MP3VBR": it will take time..."
 			ffmpeg_mp3
 			echo "`ffprobe -i $PATHSAVE/"${FILE}"$M3EXT -v quiet -print_format json -show_format -hide_banner`" > $ID
@@ -264,11 +266,11 @@ for FILE in *${EXT}; do
 			mv -f $PATHSAVE/"${FILE}"$M3EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M3EXT
 		elif [ $number2 -eq 3 ]; then
 			if [ $number5 -eq 3 ]; then
-				DBLEVEL=`echo "$DBLEVEL -0.35" | bc`
-				echo "To avoid possible clipping, RMS Normalization will be -0.35 dB (adds +"$DBLEVEL" dB)"
+				DBLEVEL=`echo "$DBLEVEL -0.3" | bc`
+				echo "To avoid possible clipping, RMS Normalization will be -0.3 dB (adds "$DBLEVEL" dB)"
 			else
-				DBLEVEL=`echo "$DBLEVEL -0.58" | bc`
-				echo "To avoid possible clipping, RMS Normalization will be -0.58 dB (adds +"$DBLEVEL" dB)"
+				DBLEVEL=`echo "$DBLEVEL -0.45" | bc`
+				echo "To avoid possible clipping, RMS Normalization will be -0.45 dB (adds "$DBLEVEL" dB)"
 			fi
 			echo && echo "Encoding to M4A with library "$LIB4" and "$M4AQ": it will take time..."
 			ffmpeg_m4a
@@ -279,8 +281,8 @@ for FILE in *${EXT}; do
 			echo $SIZE | awk '{abc=$1/1024/1024; print "Size of output file is " abc " MB"}'
 			mv -f $PATHSAVE/"${FILE}"$M4EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M4EXT
 		elif [ $number2 -eq 4 ]; then
-			DBLEVEL=`echo "$DBLEVEL -0.69" | bc`
-			echo "To avoid possible clipping, RMS Normalization will be -0.69 dB (adds +"$DBLEVEL" dB)"
+			DBLEVEL=`echo "$DBLEVEL -0.65" | bc`
+			echo "To avoid possible clipping, RMS Normalization will be -0.65 dB (adds "$DBLEVEL" dB)"
 			ffmpeg_opus
 			echo && echo "Encoding to OPUS: it will take time..."
 			opusenc $PATHSAVE/"${FILE}" $PATHSAVE/"${FILE}"$OPUSEXT --quiet
@@ -349,6 +351,6 @@ echo -e '\e[0m'
 echo
 
 rm -f plf pl3 pl4 plop
-#rm -f $PATHLOAD/$ID
+rm -f $PATHLOAD/$ID
 
 exit 0
