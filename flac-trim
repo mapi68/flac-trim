@@ -111,7 +111,9 @@ list_song() {
 bitrate_flac() {
 	echo "`ffprobe -i $PATHSAVE/"${FILE}" -v quiet -print_format json -show_format -hide_banner`" > $ID
 	BITRATE=`grep bit_rate $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-	echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
+	SIZE=`grep size $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+	echo && echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
+	echo $SIZE | awk '{abc=$1/1024/1024; print "Size of output file is " abc " MB"}'
 }
 
 script_restart() {
@@ -197,11 +199,8 @@ if [ "$number4" -ne 1 ] && [ "$number4" -ne 2 ]; then
 echo && echo "Please put your $EXT file(s) in $PATHLOAD"
 read -rsn1 -p "After press any key to continue"
 echo
-
-
 if [[ `ls -1 $PATHLOAD | grep $EXT | wc -l` = 0 ]]; then
-	script_restart
-fi
+	script_restart; fi
 
 cd $PATHLOAD
 
@@ -217,6 +216,7 @@ for FILE in *${EXT}; do
 	ALBUM=`grep ALBUM $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	YEAR=`grep DATE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	DURATION=`grep duration $ID | awk -F': "' '{print $2}' | cut -d'.' -f1`
+	SIZE=`grep size $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	DBLEVEL=`ffmpeg -i "${FILE}" -af "volumedetect" -f null /dev/null 2>&1 | grep max_volume | awk -F': ' '{print $2}' | cut -d' ' -f1`
 	COMPRESULT=`echo ${DBLEVEL}'<'0 | bc -l`
 	DBLEVEL=`echo "-(${DBLEVEL})" | bc -l`
@@ -229,8 +229,9 @@ for FILE in *${EXT}; do
 	echo "ALBUM:" $ALBUM
 	echo "SONG TITLE:" $TITLE
 	echo "FILE NAME:" "${ARTIST} - ${TITLE}${EXT}"
-	echo "DURATION:" `printf '%dm:%ds\n' $(($DURATION%3600/60)) $(($DURATION%60))`
 	echo "YEAR:" $YEAR
+	echo "DURATION:" `printf '%dm:%ds\n' $(($DURATION%3600/60)) $(($DURATION%60))`
+	echo $SIZE | awk '{abc=$1/1024/1024; print "SIZE: " abc " MB"}'
 	echo "SONG LEVEL: -$DBLEVEL dB"
 
 	if [ $number2 -eq 1 ]; then
@@ -257,7 +258,9 @@ for FILE in *${EXT}; do
 			ffmpeg_mp3
 			echo "`ffprobe -i $PATHSAVE/"${FILE}"$M3EXT -v quiet -print_format json -show_format -hide_banner`" > $ID
 			BITRATE=`grep bit_rate $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-			echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
+			SIZE=`grep size $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+			echo && echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
+			echo $SIZE | awk '{abc=$1/1024/1024; print "Size of output file is " abc " MB"}'
 			mv -f $PATHSAVE/"${FILE}"$M3EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M3EXT
 		elif [ $number2 -eq 3 ]; then
 			if [ $number5 -eq 3 ]; then
@@ -271,7 +274,9 @@ for FILE in *${EXT}; do
 			ffmpeg_m4a
 			echo "`ffprobe -i $PATHSAVE/"${FILE}"$M4EXT -v quiet -print_format json -show_format -hide_banner`" > $ID
 			BITRATE=`grep bit_rate $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-			echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
+			SIZE=`grep size $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+			echo && echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
+			echo $SIZE | awk '{abc=$1/1024/1024; print "Size of output file is " abc " MB"}'
 			mv -f $PATHSAVE/"${FILE}"$M4EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M4EXT
 		elif [ $number2 -eq 4 ]; then
 			DBLEVEL=`echo "$DBLEVEL -0.69" | bc`
@@ -282,7 +287,9 @@ for FILE in *${EXT}; do
 			rm $PATHSAVE/"${FILE}"
 			echo "`ffprobe -i $PATHSAVE/"${FILE}"$OPUSEXT -v quiet -print_format json -show_format -hide_banner`" > $ID
 			BITRATE=`grep bit_rate $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-			echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
+			SIZE=`grep size $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+			echo && echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
+			echo $SIZE | awk '{abc=$1/1024/1024; print "Size of output file is " abc " MB"}'
 			mv -f $PATHSAVE/"${FILE}"$OPUSEXT $PATHSAVE/"${ARTIST} - ${TITLE}"$OPUSEXT
 		fi
 	fi
@@ -341,7 +348,7 @@ echo -e '\e[92m'"********************* ALL DONE! *********************"
 echo -e '\e[0m'
 echo
 
-rm -rf plf pl3 pl4 plop
-rm -f $PATHLOAD/$ID
+rm -f plf pl3 pl4 plop
+#rm -f $PATHLOAD/$ID
 
 exit 0
