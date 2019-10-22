@@ -68,34 +68,34 @@ CO=3_cover
 
 ffmpeg_flac_norm() {
 	echo "RMS Normalization to 0 dB..."
-	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-72dB","adelay=250|250" \
+	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
 		-sample_fmt s16 $PATHSAVE/"${FILE}" -loglevel error
 }
 
 ffmpeg_flac() {
-	ffmpeg -i "${FILE}" -af "silenceremove=1:0:-72dB","adelay=250|250" \
+	ffmpeg -i "${FILE}" -af "silenceremove=1:0:-60dB","adelay=250|250" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
 		-sample_fmt s16 $PATHSAVE/"${FILE}" -loglevel error
 }
 
 ffmpeg_mp3() {
-	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-72dB","adelay=250|250" \
+	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
 		-c:a libmp3lame -q:a $MP3VBR $PATHSAVE/"${FILE}"$M3EXT -loglevel error
 }
 
 ffmpeg_m4a() {
-	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-72dB","adelay=250|250" \
+	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
 		-metadata GENRE="$GENRE" \
 		-c:v copy -c:a $LIB4 $M4AQ $PATHSAVE/"${FILE}"$M4EXT -loglevel error
 }
 
 ffmpeg_opus() {
-	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-72dB","adelay=250|250" \
+	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" $PATHSAVE/"${FILE}" -loglevel error
 }
@@ -279,8 +279,8 @@ for FILE in *${EXT}; do
 		fi
 	else
 		if [ $number2 -eq 2 ]; then
-			DBLEVEL=`echo "$DBLEVEL -0.55" | bc`
-			echo "To avoid possible clipping, RMS Normalization will be -0.55 dB (adds "$DBLEVEL" dB)"
+			DBLEVEL=`echo "$DBLEVEL -0.58" | bc`
+			echo "To avoid possible clipping, RMS Normalization will be -0.58 dB (adds "$DBLEVEL" dB)"
 			echo && echo "Encoding to MP3 with VBR "$MP3VBR": it will take time..."
 			ffmpeg_mp3
 			echo "`ffprobe -i $PATHSAVE/"${FILE}"$M3EXT -v quiet -print_format json -show_format -hide_banner`" > $ID
@@ -291,8 +291,8 @@ for FILE in *${EXT}; do
 			mv -f $PATHSAVE/"${FILE}"$M3EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M3EXT
 		elif [ $number2 -eq 3 ]; then
 			if [ $number5 -eq 3 ]; then
-				DBLEVEL=`echo "$DBLEVEL -0.3" | bc`
-				echo "To avoid possible clipping, RMS Normalization will be -0.3 dB (adds "$DBLEVEL" dB)"
+				DBLEVEL=`echo "$DBLEVEL -0.35" | bc`
+				echo "To avoid possible clipping, RMS Normalization will be -0.35 dB (adds "$DBLEVEL" dB)"
 			else
 				DBLEVEL=`echo "$DBLEVEL -0.45" | bc`
 				echo "To avoid possible clipping, RMS Normalization will be -0.45 dB (adds "$DBLEVEL" dB)"
@@ -306,8 +306,8 @@ for FILE in *${EXT}; do
 			echo $SIZE | awk '{abc=$1/1024/1024; print "Size of output file is " abc " MB"}'
 			mv -f $PATHSAVE/"${FILE}"$M4EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M4EXT
 		elif [ $number2 -eq 4 ]; then
-			DBLEVEL=`echo "$DBLEVEL -0.6" | bc`
-			echo "To avoid possible clipping, RMS Normalization will be -0.6 dB (adds "$DBLEVEL" dB)"
+			DBLEVEL=`echo "$DBLEVEL -0.64" | bc`
+			echo "To avoid possible clipping, RMS Normalization will be -0.64 dB (adds "$DBLEVEL" dB)"
 			ffmpeg_opus
 			echo && echo "Encoding to OPUS: it will take time..."
 			opusenc $PATHSAVE/"${FILE}" $PATHSAVE/"${FILE}"$OPUSEXT --quiet
