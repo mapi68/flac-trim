@@ -21,35 +21,51 @@
 #                                                                               #
 #################################################################################
 
-# apt update && apt install bc ffmpeg file flac opus-tools -y
 
 ######################## CHANGE ########################
 PATH1=/mnt/c/Users/mpiss/Desktop/flac ### CHANGE       #
 PATH2=/mnt/d/Z-flac ### CHANGE                         #
 ########################################################
-#                                                      #
-############ MP3 VBR Encoding ############             #
-# Average kbit/s | Range kbit/s | OPTION #             #
-#       225      |    190-250   |    1   #             #
-#       190      |    170-210   |    2   #             #
-#       175      |    150-195   |    3   #             #
-#       165      |    140-185   |    4   #             #
-#       130      |    120-150   |    5   #             #
-#       115      |    100-130   |    6   #             #
-#       100      |     80-120   |    7   #             #
-#        85      |     70-105   |    8   #             #
-#        65      |     45-85    |    9   #             #
-##########################################             #
-#                                                      #
-ENCODEDBY="Massimo Bremi DJ" ### CHANGE                #
 GENRE="" ### CHANGE                                    #
-#                                                      #
+ENCODEDBY="Massimo Bremi DJ"                           #
 ########################################################
 
 
+FT=flac-trim
+if [ ! -f /usr/bin/bc ] || [ ! -f /usr/bin/ffmpeg ] || [ ! -f /usr/bin/file ] || [ ! -f /usr/bin/flac ] || [ ! -f /usr/bin/opusenc ]; then
+	tput clear
+	echo && echo -e '\e[91m' "*************** MISSING DEPENDENCIES ***************" && echo
+	read -r -p "Do you want to install missing package(s) and COMPILE LATEST FFPMEG? [Y/n] " input
+	case $input in
+	[nN][oO]|[nN])
+	echo && echo "Sorry but without these package I can't execute $FT" && echo && echo -e '\e[0m' && sleep 2 && exit 0
+	;;
+	[yY][eE][sS]|[yY])
+	echo && echo -e '\e[95m'"Starting to install..." && echo && echo -e '\e[0m' && sleep 2
+	sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install bc file flac opus-tools -y
+	sudo apt-get install autoconf automake build-essential ccache libass-dev libfreetype6-dev libgpac-dev libvpx-dev libgnutls28-dev \
+		libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libx11-dev libfdk-aac-dev libssl-dev libopus-dev lynx \
+		libxext-dev libxfixes-dev pkg-config texi2html zlib1g-dev libcrypto++-dev yasm libx264-dev libx265-dev libmp3lame-dev libavcodec-extra -y
+	LATEST=`lynx -dump https://www.ffmpeg.org/download.html | grep -m 1 .tar.bz2 | awk -F' ' '{print $2}'`
+	cpu=`echo $(grep -c processor /proc/cpuinfo)`
+	wget https://ffmpeg.org/releases/$LATEST
+	tar xvjf ffmpeg*.tar.bz2
+	rm ffmpeg*bz2
+	cd ffmpeg*
+#	./configure --prefix="/usr" --enable-gnutls --enable-gpl --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
+#		--enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfre
+#	make -j$cpu && make install && hash -r && ldconfig
+	cd ..
+	rm -rf ffmpeg*
+	;;
+*)
+ echo "Invalid input..."
+ ;;
+esac
+fi
+
 tput clear
 
-FT=flac-trim
 EXT=.flac
 M3EXT=.mp3
 M4EXT=.m4a
@@ -71,32 +87,32 @@ ffmpeg_flac_norm() {
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
-		-sample_fmt s16 $PATHSAVE/"${FILE}" -loglevel error
+		-ar 44100 $PATHSAVE/"${FILE}" -loglevel error
 }
 
 ffmpeg_flac() {
 	ffmpeg -i "${FILE}" -af "silenceremove=1:0:-60dB","adelay=250|250" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
-		-sample_fmt s16 $PATHSAVE/"${FILE}" -loglevel error
+		-ar 44100 $PATHSAVE/"${FILE}" -loglevel error
 }
 
 ffmpeg_mp3() {
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
-		-c:a libmp3lame -q:a $mp3vbr $PATHSAVE/"${FILE}"$M3EXT -loglevel error
+		-ar 44100 -c:a libmp3lame -q:a $mp3vbr $PATHSAVE/"${FILE}"$M3EXT -loglevel error
 }
 
 ffmpeg_m4a() {
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
-		-metadata GENRE="$GENRE" \
+		-metadata GENRE="$GENRE" -ar 44100 \
 		-c:v copy -c:a $LIB4 $M4AQ $PATHSAVE/"${FILE}"$M4EXT -loglevel error
 }
 
 ffmpeg_opus() {
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
-		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
+		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" -ar 44100 \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" $PATHSAVE/"${FILE}" -loglevel error
 }
 
@@ -118,7 +134,7 @@ bitrate_flac() {
 
 script_restart() {
 	tput clear
-	echo -e '\e[91m'"Something wrong: please check your file(s) or your choose!"
+	echo && echo -e '\e[91m'"Something wrong: please check your file(s) or your choose!"
 	for i in {4..1}; do
 		tput cup 2 $l
 		echo -e '\e[0m'"Restarting script in $i seconds..." && echo
@@ -139,6 +155,14 @@ file_check() {
 	echo -e '\e[96m'
 	if [[ `ls -1 $PATHLOAD | grep $EXT | wc -l` = 0 ]]; then
 		script_restart; fi
+}
+
+lossy_data() {
+	BITRATE=`grep bit_rate $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+	SIZE=`grep size $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+	echo && echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
+	echo $SIZE | awk '{abc=$1/1024/1024; print "Size of output file is " abc " MB"}'
+	echo "Max volume of encoded file is $DBLEVEL dB"
 }
 
 
@@ -174,7 +198,7 @@ if [ "$number2" -ne 1 ] && [ "$number2" -ne 2 ] && [ "$number2" -ne 3 ] && [ "$n
 	script_restart; fi
 
 n=0
-if [ $number2 -eq 5 ]; then 
+if [ $number2 -eq 5 ]; then
 	cd $PATHLOAD
 	file_check
 	echo -e '\e[96m' && echo "Found" `ls -1 | grep $EXT | wc -l` "file(s) with" $EXT "extension in" $PATHLOAD && echo -e '\e[0m' && echo && sleep 1
@@ -185,7 +209,7 @@ if [ $number2 -eq 5 ]; then
 		ARTIST=`grep ARTIST $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 		ALBUM=`grep ALBUM $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 		YEAR=`grep DATE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-		echo "Processing cover file" $n "of" `ls -1 | grep $EXT | wc -l`": $ARTIST - $ALBUM ($YEAR)" 
+		echo "Processing cover file" $n "of" `ls -1 | grep $EXT | wc -l`": $ARTIST - $ALBUM ($YEAR)"
 		export_cover
 	done
 	rm -f $ID
@@ -279,44 +303,38 @@ for FILE in *${EXT}; do
 		fi
 	else
 		if [ $number2 -eq 2 ]; then
-			DBLEVEL=`echo "$DBLEVEL -0.8" | bc`
-			echo "To avoid possible clipping, RMS Normalization will be -0.8 dB (adds "$DBLEVEL" dB)"
+			DBLEVEL=`echo "$DBLEVEL -0.9" | bc`
+			echo "To avoid possible clipping, RMS Normalization will be -0.9 dB (adds "$DBLEVEL" dB)"
 			echo && echo "Encoding to MP3 with VBR "$mp3vbr": it will take time..."
 			ffmpeg_mp3
 			echo "`ffprobe -i $PATHSAVE/"${FILE}"$M3EXT -v quiet -print_format json -show_format -hide_banner`" > $ID
-			BITRATE=`grep bit_rate $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-			SIZE=`grep size $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-			echo && echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
-			echo $SIZE | awk '{abc=$1/1024/1024; print "Size of output file is " abc " MB"}'
+			DBLEVEL=`ffmpeg -i $PATHSAVE/"${FILE}"$M3EXT -af "volumedetect" -f null /dev/null 2>&1 | grep max_volume | awk -F': ' '{print $2}' | cut -d' ' -f1`
+			lossy_data
 			mv -f $PATHSAVE/"${FILE}"$M3EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M3EXT
 		elif [ $number2 -eq 3 ]; then
 			if [ $number5 -eq 3 ]; then
 				DBLEVEL=`echo "$DBLEVEL -0.4" | bc`
 				echo "To avoid possible clipping, RMS Normalization will be -0.4 dB (adds "$DBLEVEL" dB)"
 			else
-				DBLEVEL=`echo "$DBLEVEL -0.7" | bc`
-				echo "To avoid possible clipping, RMS Normalization will be -0.7 dB (adds "$DBLEVEL" dB)"
+				DBLEVEL=`echo "$DBLEVEL -0.8" | bc`
+				echo "To avoid possible clipping, RMS Normalization will be -0.8 dB (adds "$DBLEVEL" dB)"
 			fi
 			echo && echo "Encoding to M4A with library "$LIB4" and "$M4AQ": it will take time..."
 			ffmpeg_m4a
 			echo "`ffprobe -i $PATHSAVE/"${FILE}"$M4EXT -v quiet -print_format json -show_format -hide_banner`" > $ID
-			BITRATE=`grep bit_rate $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-			SIZE=`grep size $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-			echo && echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
-			echo $SIZE | awk '{abc=$1/1024/1024; print "Size of output file is " abc " MB"}'
+			DBLEVEL=`ffmpeg -i $PATHSAVE/"${FILE}"$M4EXT -af "volumedetect" -f null /dev/null 2>&1 | grep max_volume | awk -F': ' '{print $2}' | cut -d' ' -f1`
+			lossy_data
 			mv -f $PATHSAVE/"${FILE}"$M4EXT $PATHSAVE/"${ARTIST} - ${TITLE}"$M4EXT
 		elif [ $number2 -eq 4 ]; then
-			DBLEVEL=`echo "$DBLEVEL -1.0" | bc`
-			echo "To avoid possible clipping, RMS Normalization will be -1.0 dB (adds "$DBLEVEL" dB)"
+			DBLEVEL=`echo "$DBLEVEL -1.1" | bc`
+			echo "To avoid possible clipping, RMS Normalization will be -1.1 dB (adds "$DBLEVEL" dB)"
 			ffmpeg_opus
 			echo && echo "Encoding to OPUS: it will take time..."
 			opusenc $PATHSAVE/"${FILE}" $PATHSAVE/"${FILE}"$OPUSEXT --quiet
 			rm $PATHSAVE/"${FILE}"
 			echo "`ffprobe -i $PATHSAVE/"${FILE}"$OPUSEXT -v quiet -print_format json -show_format -hide_banner`" > $ID
-			BITRATE=`grep bit_rate $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-			SIZE=`grep size $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-			echo && echo "Average bitrate of output file is $(($BITRATE/1024)) kBit/s"
-			echo $SIZE | awk '{abc=$1/1024/1024; print "Size of output file is " abc " MB"}'
+			DBLEVEL=`ffmpeg -i $PATHSAVE/"${FILE}"$OPUSEXT -af "volumedetect" -f null /dev/null 2>&1 | grep max_volume | awk -F': ' '{print $2}' | cut -d' ' -f1`
+			lossy_data
 			mv -f $PATHSAVE/"${FILE}"$OPUSEXT $PATHSAVE/"${ARTIST} - ${TITLE}"$OPUSEXT
 		fi
 	fi
