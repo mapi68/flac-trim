@@ -49,12 +49,10 @@ if [ ! -f /usr/bin/bc ] || [ ! -f /usr/bin/ffmpeg ] || [ ! -f /usr/bin/file ] ||
 	LATEST=`lynx -dump https://www.ffmpeg.org/download.html | grep -m 1 .tar.bz2 | awk -F' ' '{print $2}'`
 	cpu=`echo $(grep -c processor /proc/cpuinfo)`
 	wget https://ffmpeg.org/releases/$LATEST
-	tar xvjf ffmpeg*.tar.bz2
-	rm ffmpeg*bz2
-	cd ffmpeg*
-#	./configure --prefix="/usr" --enable-gnutls --enable-gpl --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
-#		--enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfre
-#	make -j$cpu && make install && hash -r && ldconfig
+	tar xvjf ffmpeg*.tar.bz2 && rm ffmpeg*bz2 && cd ffmpeg*
+	./configure --prefix="/usr" --enable-gnutls --enable-gpl --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
+		--enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfre
+	make -j$cpu && make install && hash -r && ldconfig
 	cd ..
 	rm -rf ffmpeg*
 	;;
