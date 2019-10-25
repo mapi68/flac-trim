@@ -34,19 +34,25 @@ ENCODEDBY="Massimo Bremi DJ"                           #
 FT=flac-trim
 if [ ! -f /usr/bin/bc ] || [ ! -f /usr/bin/ffmpeg ] || [ ! -f /usr/bin/file ] || [ ! -f /usr/bin/flac ] || [ ! -f /usr/bin/opusenc ]; then
 	tput clear
-	echo && echo -e '\e[91m' "*************** MISSING DEPENDENCIES ***************" && echo
-	read -r -p "Do you want to install missing package(s) and COMPILE LATEST FFPMEG? [Y/n] " input
+	echo && echo -e '\e[91m' "*************	MISSING DEPENDENCIES *************" && echo
+	read -r -p "Do you want to install missing package(s)? [Y/n] " input
 	case $input in
 	[nN][oO]|[nN])
 	echo && echo "Sorry but without these package I can't execute $FT" && echo && echo -e '\e[0m' && sleep 2 && exit 0
 	;;
 	[yY][eE][sS]|[yY])
-	echo && echo -e '\e[95m'"Starting to install..." && echo && echo -e '\e[0m' && sleep 2
+	echo && echo -e '\e[95m'"Starting install..." && echo && echo -e '\e[0m' && sleep 2
 	sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install bc file flac opus-tools -y
-	sudo apt-get install autoconf automake build-essential ccache libass-dev libfreetype6-dev libgpac-dev libvpx-dev libgnutls28-dev \
+	tput clear
+	echo && echo -e '\e[91m' "*************	MISSING DEPENDENCIES *************" && echo
+	echo && read -r -p "Do you want to COMPILE LATEST FFPMEG? [Y/n] " input
+	case $input in
+	[yY][eE][sS]|[yY])
+	echo && echo -e '\e[95m'"Starting install..." && echo && echo -e '\e[0m' && sleep 2
+	sudo apt-get install autoconf automake build-essential ccache libass-dev libfreetype6-dev libgpac-dev libvpx-dev libgnutls28-dev wget \
 		libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libx11-dev libfdk-aac-dev libssl-dev libopus-dev lynx \
 		libxext-dev libxfixes-dev pkg-config texi2html zlib1g-dev libcrypto++-dev yasm libx264-dev libx265-dev libmp3lame-dev libavcodec-extra -y
-	LATEST=`lynx -dump https://www.ffmpeg.org/download.html | grep -m 1 .tar.bz2 | awk -F' ' '{print $2}'`
+	LATEST=`lynx -dump https://www.ffmpeg.org/download.html | grep -m 1 .tar.bz2 | awk -F' ' '{print $4}'`
 	cpu=`echo $(grep -c processor /proc/cpuinfo)`
 	wget https://ffmpeg.org/releases/$LATEST
 	tar xvjf ffmpeg*.tar.bz2 && rm ffmpeg*bz2 && cd ffmpeg*
@@ -56,6 +62,14 @@ if [ ! -f /usr/bin/bc ] || [ ! -f /usr/bin/ffmpeg ] || [ ! -f /usr/bin/file ] ||
 	cd ..
 	rm -rf ffmpeg*
 	;;
+	[nN][oO]|[nN])
+	:
+	;;
+	*)
+	echo "Invalid input..."
+	;;
+esac
+;;
 *)
  echo "Invalid input..."
  ;;
