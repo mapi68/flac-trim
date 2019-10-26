@@ -37,42 +37,42 @@ if [ ! -f /usr/bin/bc ] || [ ! -f /usr/bin/ffmpeg ] || [ ! -f /usr/bin/file ] ||
 	echo && echo -e '\e[91m' "*************	MISSING DEPENDENCIES *************" && echo
 	read -r -p "Do you want to install missing package(s)? [Y/n] " input
 	case $input in
-		[nN][oO]|[nN])
-		echo && echo "Sorry but without these package I can't execute $FT" && echo && echo -e '\e[0m' && sleep 2 && exit 0
-		;;
-		[yY][eE][sS]|[yY])
+	[nN][oO]|[nN])
+	echo && echo "Sorry but without these package I can't execute $FT" && echo && echo -e '\e[0m' && sleep 2 && exit 0
+	;;
+[yY][eE][sS]|[yY])
 		echo && echo -e '\e[95m'"Starting install..." && echo && echo -e '\e[0m' && sleep 2
 		sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install bc file flac opus-tools -y
 		tput clear
 		echo && echo -e '\e[91m' "*************	MISSING DEPENDENCIES *************" && echo
 		echo && read -r -p "Do you want to COMPILE LATEST FFPMEG? [Y/n] " input
 		case $input in
-			[yY][eE][sS]|[yY])
-			echo && echo -e '\e[95m'"Starting install..." && echo && echo -e '\e[0m' && sleep 2
-			sudo apt-get install autoconf automake build-essential ccache libass-dev libfreetype6-dev libgpac-dev libvpx-dev libgnutls28-dev wget \
-				libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libx11-dev libfdk-aac-dev libssl-dev libopus-dev lynx \
-				libxext-dev libxfixes-dev pkg-config texi2html zlib1g-dev libcrypto++-dev yasm libx264-dev libx265-dev libmp3lame-dev libavcodec-extra -y
-			LATEST=`lynx -dump https://www.ffmpeg.org/download.html | grep -m 1 .tar.bz2 | awk -F' ' '{print $4}'`
-			cpu=`echo $(grep -c processor /proc/cpuinfo)`
-			wget https://ffmpeg.org/releases/$LATEST
-			tar xvjf ffmpeg*.tar.bz2 && rm ffmpeg*bz2 && cd ffmpeg*
-			./configure --prefix="/usr" --enable-gnutls --enable-gpl --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
-				--enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfre
-			make -j$cpu && make install && hash -r && ldconfig
-			cd .. && rm -rf ffmpeg*
-			;;
-			[nN][oO]|[nN])
-			:
-			;;
-			*)
+		[yY][eE][sS]|[yY])
+		echo && echo -e '\e[95m'"Starting install..." && echo && echo -e '\e[0m' && sleep 2
+		sudo apt-get install autoconf automake build-essential ccache libass-dev libfreetype6-dev libgpac-dev libvpx-dev libgnutls28-dev wget \
+			libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libx11-dev libfdk-aac-dev libssl-dev libopus-dev lynx \
+			libxext-dev libxfixes-dev pkg-config texi2html zlib1g-dev libcrypto++-dev yasm libx264-dev libx265-dev libmp3lame-dev libavcodec-extra -y
+		LATEST=`lynx -dump https://www.ffmpeg.org/download.html | grep -m 1 .tar.bz2 | awk -F' ' '{print $4}'`
+		cpu=`echo $(grep -c processor /proc/cpuinfo)`
+		wget https://ffmpeg.org/releases/$LATEST
+		tar xvjf ffmpeg*.tar.bz2 && rm ffmpeg*bz2 && cd ffmpeg*
+		./configure --prefix="/usr" --enable-gnutls --enable-gpl --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
+			--enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfre
+		make -j$cpu && make install && hash -r && ldconfig
+		cd .. && rm -rf ffmpeg*
+		;;
+	[nN][oO]|[nN])
+	:
+	;;
+*)
 			echo && echo "Invalid input..." && echo && echo -e '\e[0m'  && sleep 2 && exit 0
 			;;
 		esac
 		;;
-		*)
-		echo && echo "Invalid input..." && echo && echo -e '\e[0m'  && sleep 2 && exit 0
-		;;
-	esac
+	*)
+	echo && echo "Invalid input..." && echo && echo -e '\e[0m'  && sleep 2 && exit 0
+	;;
+esac
 fi
 
 tput clear
@@ -98,32 +98,32 @@ ffmpeg_flac_norm() {
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
-		-sample_fmt s16 -ar 44100 $PATHSAVE/"${FILE}" -loglevel error
+		-sample_fmt s16 $PATHSAVE/"${FILE}" -loglevel error
 }
 
 ffmpeg_flac() {
 	ffmpeg -i "${FILE}" -af "silenceremove=1:0:-60dB","adelay=250|250" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
-		-sample_fmt s16 -ar 44100 $PATHSAVE/"${FILE}" -loglevel error
+		-sample_fmt s16 $PATHSAVE/"${FILE}" -loglevel error
 }
 
 ffmpeg_mp3() {
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
-		-ar 44100 -c:a libmp3lame -q:a $mp3vbr $PATHSAVE/"${FILE}"$M3EXT -loglevel error
+		-c:a libmp3lame -q:a $mp3vbr $PATHSAVE/"${FILE}"$M3EXT -loglevel error
 }
 
 ffmpeg_m4a() {
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
-		-metadata GENRE="$GENRE" -ar 44100 \
+		-metadata GENRE="$GENRE" \
 		-c:v copy -c:a $LIB4 $M4AQ $PATHSAVE/"${FILE}"$M4EXT -loglevel error
 }
 
 ffmpeg_opus() {
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
-		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" -ar 44100 \
+		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" $PATHSAVE/"${FILE}" -loglevel error
 }
 
@@ -177,13 +177,13 @@ lossy_data() {
 }
 
 
-echo -e '\e[92m'"     __ _                 _        _ "
+echo -e '\e[95m'"     __ _                 _        _ "
 echo "    / _| | __ _  ___     | |_ _ __(_)_ __ ___ "
 echo "   | |_| |/ _\` |/ __|____| __| '__| | '_ \` _ \ "
 echo "   |  _| | (_| | (_|_____| |_| |  | | | | | | | "
 echo "   |_| |_|\__,_|\___|     \__|_|  |_|_| |_| |_| "
-echo -e '\e[0m' && echo
-
+echo -e '\e[92m'
+echo "        `ffmpeg -version | awk -F' ' '{print $1,$2,$3}' | head -1` is installed" && echo
 echo  -e '\e[93m'"Please choose the directory where you saved your $EXT file(s):"
 echo "1) Desktop" && echo "2) Music" && echo
 read number
