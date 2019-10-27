@@ -21,13 +21,12 @@
 <img src="https://i.postimg.cc/cH1wHWKw/FLAC-logo.png">
 
 ## Installation
+Open flac-trim.conf and if you need edit variables
+
 ```bash
-apt update && apt install bc ffmpeg file flac opus-tools -y
+chmod +x flac-trim* && ./flac-trim
 ```
 <a href="https://youtu.be/NIq456R0ESw">YouTube Video</a>
-
-#### Before start script read this and change:
-<img src="https://i.postimg.cc/pXQd4K7c/change.png" alt="change"><br>
 
 ## License
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
