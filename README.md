@@ -26,7 +26,6 @@ Open flac-trim.conf and if you need edit variables
 ```bash
 chmod +x flac-trim* && ./flac-trim
 ```
-<a href="https://youtu.be/NIq456R0ESw">YouTube Video</a>
 
 ## License
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
