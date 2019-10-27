@@ -22,16 +22,11 @@
 #################################################################################
 
 
-######################## CHANGE ########################
-PATH1=/mnt/c/Users/mpiss/Desktop/flac ### CHANGE       #
-PATH2=/mnt/d/Z-flac ### CHANGE                         #
-########################################################
-GENRE="" ### CHANGE                                    #
-ENCODEDBY="Massimo Bremi DJ"                           #
-########################################################
-
-
 FT=flac-trim
+chmod +x $FT.conf
+source $FT.conf
+
+
 if [ ! -f /usr/bin/bc ] || [ ! -f /usr/bin/ffmpeg ] || [ ! -f /usr/bin/file ] || [ ! -f /usr/bin/flac ] || [ ! -f /usr/bin/opusenc ]; then
 	tput clear
 	echo && echo -e '\e[91m' "*************	MISSING DEPENDENCIES *************" && echo
@@ -69,14 +64,10 @@ M4EXT=.m4a
 OPUSEXT=.opus
 ID=tag
 IMG=folder
-mp3vbr=3
 PLF=00-flac_playlist.m3u
 PL3=00-mp3_playlist.m3u
 PL4=00-m4a_playlist.m3u
 PLOP=00-opus_playlist.m3u
-OR=1_original
-TR=2_trimmed
-CO=3_cover
 
 
 ffmpeg_flac_norm() {
@@ -147,9 +138,9 @@ export_cover() {
 }
 
 file_check() {
-	echo && echo -e '\e[95m'"Please check if your $EXT file(s) are in $PATHLOAD"
+	echo && echo && echo -e '\e[95m'"Please check if your $EXT file(s) are in $PATHLOAD"
 	read -rsn1 -p "After press any key to continue"
-	echo -e '\e[96m'
+	echo && echo -e '\e[96m'
 	if [[ `ls -1 $PATHLOAD | grep $EXT | wc -l` = 0 ]]; then
 		script_restart; fi
 }
@@ -170,10 +161,10 @@ echo "   |  _| | (_| | (_|_____| |_| |  | | | | | | | "
 echo "   |_| |_|\__,_|\___|     \__|_|  |_|_| |_| |_| "
 echo -e '\e[92m'
 echo "        `ffmpeg -version | awk -F' ' '{print $1,$2,$3}' | head -1` is installed" && echo
-echo  -e '\e[93m'"Please choose the directory where you saved your $EXT file(s):"
-echo "1) Desktop" && echo "2) Music" && echo
+echo && echo -e '\e[93m'"Please choose the directory where you want to put your $EXT file(s):" && echo
+echo "1) $PN1 -----> $PATH1" && echo "2) $PN2 -----> $PATH2" && echo "3) $PN3 -----> $PATH3" && echo
 read number
-if [ "$number" -ne 1 ] && [ "$number" -ne 2 ]; then
+if [ "$number" -ne 1 ] && [ "$number" -ne 2 ] && [ "$number" -ne 3 ]; then
 	script_restart
 elif [ $number -eq 1 ]; then
 	mkdir -p $PATH1/$OR $PATH1/$TR $PATH1/$CO
@@ -185,9 +176,14 @@ elif [ $number -eq 2 ]; then
 	PATHLOAD=$PATH2/$OR
 	PATHSAVE=$PATH2/$TR
 	PATHIMG=$PATH2/$CO
+elif [ $number -eq 3 ]; then
+	mkdir -p $PATH3/$OR $PATH3/$TR $PATH3/$CO
+	PATHLOAD=$PATH3/$OR
+	PATHSAVE=$PATH3/$TR
+	PATHIMG=$PATH3/$CO
 fi
-echo
-echo "Please choose extension to save your file(s):"
+echo && echo
+echo "Please choose extension for your trimmed file(s):" && echo
 echo "1) FLAC" && echo "2) MP3" && echo "3) M4A" && echo "4) OPUS"
 echo "5) I want ONLY to save ALL cover in $PATHIMG" && echo
 read number2
@@ -215,8 +211,8 @@ if [ $number2 -eq 5 ]; then
 	exit 1
 fi
 if [ $number2 -eq 3 ]; then
-	echo
-	echo "Please choose AAC encoder:"
+	echo && echo
+	echo "Please choose AAC encoder:" && echo
 	echo "1) AAC (good quality)" && echo "2) AAC (medium quality)"
 	echo "3) LIBFDK_AAC (highest quality without cut frequencies, but needs ffmpeg compiled with libfdk_aac)" && echo
 	read number5
@@ -235,24 +231,24 @@ if [ $number2 -eq 3 ]; then
 	fi
 fi
 if [ $number2 -eq 1 ]; then
-	echo
-	echo "Please choose volume output of your trimmed file(s):"
+	echo && echo
+	echo "Please choose volume output of your trimmed file(s):" && echo
 	echo "1) RMS Normalization to 0 dB" && echo "2) ReplayGain as single track" && echo "3) ReplayGain as album" && echo
-	read number3
+	read number3 && echo
 	if [ "$number3" -ne 1 ] && [ "$number3" -ne 2 ] && [ "$number3" -ne 3 ]; then
 		script_restart; fi
 else
-	number3=0
+	number3=0 && echo
 fi
 
-echo && echo "Do you want to create playlist.m3u?"
+echo && echo "Do you want to create playlist.m3u?" && echo
 echo "1) No" && echo "2) Yes" && echo
 read number4
 if [ "$number4" -ne 1 ] && [ "$number4" -ne 2 ]; then
 	script_restart; fi
 file_check
 cd $PATHLOAD
-echo && echo "Found" `ls -1 | grep $EXT | wc -l` "file(s) with" $EXT "extension in" $PATHLOAD && echo -e '\e[0m' && echo && sleep 1
+echo && echo && echo "Found" `ls -1 | grep $EXT | wc -l` "file(s) with" $EXT "extension in" $PATHLOAD && echo -e '\e[0m' && echo && sleep 1
 n=0
 for FILE in *${EXT}; do
 	let n=n+1
