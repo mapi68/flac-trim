@@ -22,58 +22,6 @@
 #################################################################################
 
 
-FT=flac-trim
-if [ ! -f $FT.conf ]; then
-	tput clear
-	echo && echo -e '\e[91m' "*************	MISSING FILE *************" && echo
-	echo && echo && echo "Sorry but without $FT.conf I can't execute $FT" && echo && echo -e '\e[0m' && sleep 1 && exit 1
-fi
-chmod +x $FT.conf
-source $FT.conf
-
-if [ ! -f /usr/bin/bc ] || [ ! -f /usr/bin/ffmpeg ] || [ ! -f /usr/bin/file ] || [ ! -f /usr/bin/flac ] || [ ! -f /usr/bin/opusenc ]; then
-	tput clear
-	echo && echo -e '\e[91m' "*************	MISSING DEPENDENCIES *************" && echo
-	read -p "Do you want to install missing package(s)? (Y/n) " -n 1 -r -s
-	if ! [[ $REPLY =~ ^[Yy]$ ]]; then
-		echo && echo && echo "Sorry but without these package I can't execute $FT" && echo && echo -e '\e[0m' && sleep 1 && exit 1
-	else
-		echo && echo && echo -e '\e[95m'"Starting install..." && echo && echo -e '\e[0m' && sleep 1
-		sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install bc file flac opus-tools -y
-		tput clear
-		echo && echo -e '\e[91m' "*************	MISSING DEPENDENCIES *************" && echo
-		echo && read -p "Do you want to COMPILE LATEST FFPMEG? [Y/n] " -n 1 -r -s
-		if [[ $REPLY =~ ^[Yy]$ ]]; then
-			echo && echo && echo -e '\e[95m'"Starting install..." && echo && echo -e '\e[0m' && sleep 1
-			sudo apt-get install autoconf automake build-essential ccache libass-dev libfreetype6-dev libgpac-dev libvpx-dev libgnutls28-dev wget \
-				libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libx11-dev libfdk-aac-dev libssl-dev libopus-dev lynx \
-				libxext-dev libxfixes-dev pkg-config texi2html zlib1g-dev libcrypto++-dev yasm libx264-dev libx265-dev libmp3lame-dev libavcodec-extra -y
-			LATEST=`lynx -dump https://www.ffmpeg.org/download.html | grep -m 1 .tar.bz2 | awk -F' ' '{print $4}'`
-			cpu=`echo $(grep -c processor /proc/cpuinfo)`
-			wget https://ffmpeg.org/releases/$LATEST
-			tar xvjf $LATEST && rm $LATEST && cd ffmpeg-*
-			./configure --prefix="/usr" --enable-gnutls --enable-gpl --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
-				--enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfre
-			make -j$cpu && make install && hash -r && ldconfig
-			cd .. && rm -rf ffmpeg-*
-		fi
-	fi
-fi
-
-tput clear
-
-EXT=.flac
-M3EXT=.mp3
-M4EXT=.m4a
-OPUSEXT=.opus
-ID=tag
-IMG=folder
-PLF=00-flac_playlist.m3u
-PL3=00-mp3_playlist.m3u
-PL4=00-m4a_playlist.m3u
-PLOP=00-opus_playlist.m3u
-
-
 ffmpeg_flac_norm() {
 	echo "RMS Normalization to 0 dB..."
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
@@ -157,6 +105,67 @@ lossy_data() {
 	echo "Max volume of encoded file is $DBLEVEL dB"
 }
 
+compile_ffmpeg() {
+	echo && echo && echo -e '\e[95m'"Starting compile ffmpeg..." && echo && echo -e '\e[0m' && sleep 1
+	sudo apt-get install autoconf automake build-essential ccache libass-dev libfreetype6-dev libgpac-dev libvpx-dev libgnutls28-dev wget \
+		libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libx11-dev libfdk-aac-dev libssl-dev libopus-dev lynx \
+		libxext-dev libxfixes-dev pkg-config texi2html zlib1g-dev libcrypto++-dev yasm libx264-dev libx265-dev libmp3lame-dev libavcodec-extra -y
+	LATEST=`lynx -dump https://www.ffmpeg.org/download.html | grep -m 1 .tar.bz2 | awk -F' ' '{print $4}'`
+	cpu=`echo $(grep -c processor /proc/cpuinfo)`
+	wget https://ffmpeg.org/releases/$LATEST
+	tar xvjf $LATEST && rm $LATEST && cd ffmpeg-*
+	./configure --prefix="/usr" --enable-gnutls --enable-gpl --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
+		--enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfre
+	make -j$cpu && make install && hash -r && ldconfig
+	cd .. && rm -rf ffmpeg-*
+}
+
+
+FT=flac-trim
+if [ ! -f $FT.conf ]; then
+	tput clear
+	echo && echo -e '\e[91m' "*************	MISSING FILE *************" && echo
+	echo && echo && echo "Sorry but without $FT.conf I can't execute $FT" && echo && echo -e '\e[0m' && sleep 1 && exit 1
+fi
+chmod +x $FT.conf
+source $FT.conf
+
+if [ ! -f /usr/bin/bc ] || [ ! -f /usr/bin/file ] || [ ! -f /usr/bin/flac ] || [ ! -f /usr/bin/opusenc ]; then
+	tput clear
+	echo && echo -e '\e[91m' "*************	MISSING DEPENDENCIES *************" && echo
+	read -p "Do you want to install missing package(s)? (Y/n) " -n 1 -r -s
+	if ! [[ $REPLY =~ ^[Yy]$ ]]; then
+		echo && echo && echo "Sorry but without these package I can't execute $FT" && echo && echo -e '\e[0m' && sleep 1 && exit 1
+	else
+		echo && echo && echo -e '\e[95m'"Starting install dependencies..." && echo && echo -e '\e[0m' && sleep 1
+		sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install bc file flac opus-tools -y
+	fi
+fi
+if [ ! -f /usr/bin/ffmpeg ]; then
+	tput clear
+	echo && echo -e '\e[91m' "*************	MISSING DEPENDENCIES *************" && echo
+	echo && read -p "Do you want to compile latest ffpmeg? [Y/n] " -n 1 -r -s
+	if ! [[ $REPLY =~ ^[Yy]$ ]]; then
+		echo && echo && echo "Sorry but without ffmpeg I can't execute $FT" && echo && echo -e '\e[0m' && sleep 1 && exit 1
+	else
+		compile_ffmpeg
+	fi
+fi
+
+
+tput clear
+
+EXT=.flac
+M3EXT=.mp3
+M4EXT=.m4a
+OPUSEXT=.opus
+ID=tag
+IMG=folder
+PLF=00-flac_playlist.m3u
+PL3=00-mp3_playlist.m3u
+PL4=00-m4a_playlist.m3u
+PLOP=00-opus_playlist.m3u
+
 
 echo -e '\e[95m'"     __ _                 _        _ "
 echo "    / _| | __ _  ___     | |_ _ __(_)_ __ ___ "
@@ -164,7 +173,23 @@ echo "   | |_| |/ _\` |/ __|____| __| '__| | '_ \` _ \ "
 echo "   |  _| | (_| | (_|_____| |_| |  | | | | | | | "
 echo "   |_| |_|\__,_|\___|     \__|_|  |_|_| |_| |_| "
 echo -e '\e[92m'
-echo "        `ffmpeg -version | awk -F' ' '{print $1,$2,$3}' | head -1` is installed" && echo
+
+INSTALLED=`ffmpeg -version | awk -F' ' '{print $3}' | head -1`
+echo "        ffmpeg version $INSTALLED is installed"
+echo "      checking for new version of ffmpeg..."
+LATEST=`lynx -dump https://www.ffmpeg.org/download.html | grep -m 1 .tar.bz2 | awk -F' ' '{print $4}' | sed 's/.tar.bz2//g' | sed 's/ffmpeg-//g'`
+if [[ $INSTALLED == $LATEST ]]; then
+	echo "             you have latest version" && echo
+else
+	echo "             found new version $LATEST"
+	echo -e '\e[91m' && read -p "Do you want to upgrade ffpmeg to version $LATEST? [Y/n] " -n 1 -r -s
+	if [[ $REPLY =~ ^[Yy]$ ]]; then
+		echo -e '\e[0m'
+		compile_ffmpeg
+	fi
+	echo && echo
+fi
+
 echo && echo -e '\e[93m'"Please choose the directory where you want to put your $EXT file(s):" && echo
 echo "1) $PN1 -----> $PATH1" && echo "2) $PN2 -----> $PATH2" && echo "3) $PN3 -----> $PATH3" && echo
 read number
