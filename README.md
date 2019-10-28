@@ -7,7 +7,12 @@
 ## Overview
 <b>FLAC-TRIM: a powerful bash script to trim FLAC, MP3, M4A and OPUS</b><br>
 
-<img src="https://i.postimg.cc/cH1wHWKw/FLAC-logo.png">
+<img src="https://i.postimg.cc/6pPZxfxk/1.png">
+
+<img src="https://i.postimg.cc/KYgMG3ZR/2.png">
+
+<img src="https://i.postimg.cc/fLn0JWL5/3.png">
+
 
 ## Installation
 
