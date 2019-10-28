@@ -23,7 +23,7 @@
 
 
 ffmpeg_flac_norm() {
-	echo "RMS Normalization to 0 dB"
+	echo "RMS Normalization to 0 dB..."
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
@@ -176,8 +176,8 @@ echo -e '\e[92m'
 INSTALLED=`ffmpeg -version | awk -F' ' '{print $3}' | head -1`
 echo "             ffmpeg version $INSTALLED is installed"
 echo "           checking for new version of ffmpeg..."
-LATEST=`lynx -dump https://www.ffmpeg.org/download.html | grep -m 1 .tar.bz2 | awk -F' ' '{print $4}' | \
-	sed 's/.tar.bz2//g' | sed 's/ffmpeg-//g'`
+LATEST=`lynx -dump https://www.ffmpeg.org/download.html | grep -m 1 .tar.bz2 | \
+	awk -F' ' '{print $4}' | sed 's/.tar.bz2//g' | sed 's/ffmpeg-//g'`
 if [[ $INSTALLED == $LATEST ]]; then
 	echo "                  you have latest version" && echo
 else
@@ -244,14 +244,12 @@ if [ $number2 -eq 5 ]; then
 	exit 1
 fi
 if [ $number2 -eq 3 ]; then
-	echo && echo
-	echo "Please choose AAC encoder:" && echo
+	echo && echo && echo "Please choose AAC encoder:" && echo
 	echo "1) AAC (good quality)" && echo "2) AAC (medium quality)"
 	echo "3) LIBFDK_AAC (highest quality without cut frequencies)" && echo
 	read number5
 	if [ "$number5" -ne 1 ] && [ "$number5" -ne 2 ] && [ "$number5" -ne 3 ]; then
 		script_restart; fi
-	echo
 	if [ $number5 -eq 3 ]; then
 		LIB4=libfdk_aac
 		M4AQ="-vbr 5"
@@ -264,24 +262,23 @@ if [ $number2 -eq 3 ]; then
 	fi
 fi
 if [ $number2 -eq 1 ]; then
-	echo && echo
-	echo "Please choose volume output of your trimmed file(s):" && echo
+	echo && echo &&	echo "Please choose volume output of your trimmed file(s):" && echo
 	echo "1) RMS Normalization to 0 dB" && echo "2) ReplayGain as single track" && echo "3) ReplayGain as album"
-	echo && read number3 && echo
+	echo && read number3
 	if [ "$number3" -ne 1 ] && [ "$number3" -ne 2 ] && [ "$number3" -ne 3 ]; then
 		script_restart; fi
 else
 	number3=0
 fi
 
-echo && echo "Do you want to create playlist.m3u?" && echo
+echo && echo && echo "Do you want to create playlist.m3u?" && echo
 echo "1) No" && echo "2) Yes" && echo
 read number4
 if [ "$number4" -ne 1 ] && [ "$number4" -ne 2 ]; then
 	script_restart; fi
 file_check
 cd $PATHLOAD
-echo && echo && echo "Found" `ls -1 | grep $EXT | wc -l` "file(s) with" $EXT "extension in" $PATHLOAD
+echo && echo "Found" `ls -1 | grep $EXT | wc -l` "file(s) with" $EXT "extension in" $PATHLOAD
 echo -e '\e[0m' && echo && sleep 1
 
 n=0
