@@ -23,9 +23,13 @@
 
 
 FT=flac-trim
+if [ ! -f $FT.conf ]; then
+	tput clear
+	echo && echo -e '\e[91m' "*************	MISSING FILE *************" && echo
+	echo && echo && echo "Sorry but without $FT.conf I can't execute $FT" && echo && echo -e '\e[0m' && sleep 1 && exit 1
+fi
 chmod +x $FT.conf
 source $FT.conf
-
 
 if [ ! -f /usr/bin/bc ] || [ ! -f /usr/bin/ffmpeg ] || [ ! -f /usr/bin/file ] || [ ! -f /usr/bin/flac ] || [ ! -f /usr/bin/opusenc ]; then
 	tput clear
