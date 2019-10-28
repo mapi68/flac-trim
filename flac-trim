@@ -108,7 +108,7 @@ lossy_data() {
 compile_ffmpeg() {
 	echo && echo && echo -e '\e[95m'"Starting compile ffmpeg..." && echo && echo -e '\e[0m' && sleep 1
 	sudo apt-get install autoconf automake build-essential ccache libass-dev libfreetype6-dev libgpac-dev libvpx-dev libgnutls28-dev wget \
-		libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libx11-dev libfdk-aac-dev libssl-dev libopus-dev lynx \
+		libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libx11-dev libfdk-aac-dev libssl-dev libopus-dev \
 		libxext-dev libxfixes-dev pkg-config texi2html zlib1g-dev libcrypto++-dev yasm libx264-dev libx265-dev libmp3lame-dev libavcodec-extra -y
 	LATEST=`lynx -dump https://www.ffmpeg.org/download.html | grep -m 1 .tar.bz2 | awk -F' ' '{print $4}'`
 	cpu=`echo $(grep -c processor /proc/cpuinfo)`
@@ -130,7 +130,7 @@ fi
 chmod +x $FT.conf
 source $FT.conf
 
-if [ ! -f /usr/bin/bc ] || [ ! -f /usr/bin/file ] || [ ! -f /usr/bin/flac ] || [ ! -f /usr/bin/opusenc ]; then
+if [ ! -f /usr/bin/bc ] || [ ! -f /usr/bin/file ] || [ ! -f /usr/bin/flac ] || [ ! -f /usr/bin/opusenc ] || [ ! -f /usr/bin/lynx ]; then
 	tput clear
 	echo && echo -e '\e[91m' "*************	MISSING DEPENDENCIES *************" && echo
 	read -p "Do you want to install missing package(s)? (Y/n) " -n 1 -r -s
@@ -138,7 +138,7 @@ if [ ! -f /usr/bin/bc ] || [ ! -f /usr/bin/file ] || [ ! -f /usr/bin/flac ] || [
 		echo && echo && echo "Sorry but without these package I can't execute $FT" && echo && echo -e '\e[0m' && sleep 1 && exit 1
 	else
 		echo && echo && echo -e '\e[95m'"Starting install dependencies..." && echo && echo -e '\e[0m' && sleep 1
-		sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install bc file flac opus-tools -y
+		sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install bc file flac opus-tools lynx -y
 	fi
 fi
 if [ ! -f /usr/bin/ffmpeg ]; then
@@ -246,7 +246,7 @@ if [ $number2 -eq 3 ]; then
 	echo && echo
 	echo "Please choose AAC encoder:" && echo
 	echo "1) AAC (good quality)" && echo "2) AAC (medium quality)"
-	echo "3) LIBFDK_AAC (highest quality without cut frequencies, but needs ffmpeg compiled with libfdk_aac)" && echo
+	echo "3) LIBFDK_AAC (highest quality without cut frequencies)" && echo
 	read number5
 	if [ "$number5" -ne 1 ] && [ "$number5" -ne 2 ] && [ "$number5" -ne 3 ]; then
 		script_restart; fi
@@ -270,7 +270,7 @@ if [ $number2 -eq 1 ]; then
 	if [ "$number3" -ne 1 ] && [ "$number3" -ne 2 ] && [ "$number3" -ne 3 ]; then
 		script_restart; fi
 else
-	number3=0 && echo
+	number3=0
 fi
 
 echo && echo "Do you want to create playlist.m3u?" && echo
