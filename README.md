@@ -21,10 +21,10 @@
 <img src="https://i.postimg.cc/cH1wHWKw/FLAC-logo.png">
 
 ## Installation
-Open flac-trim.conf and if you need edit variables
+Open flac-trim.conf and edit variables
 
 ```bash
-chmod +x flac-trim* && ./flac-trim
+cd flac-trim && chmod +x flac-trim* && ./flac-trim
 ```
 
 ## License
