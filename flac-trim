@@ -90,8 +90,8 @@ export_cover() {
 }
 
 file_check() {
-	echo && echo && echo -e '\e[95m'"Please check if your $EXT file(s) are in $PATHLOAD"
-	read -rsn1 -p "After press any key to continue"
+	echo && echo && echo -e '\e[95m'"Please check if your $EXT file(s) are in $PATHLOAD" && echo
+	read -rsn1 -p "................. after press any key to continue ................."
 	echo && echo -e '\e[96m'
 	if [[ `ls -1 $PATHLOAD | grep $EXT | wc -l` = 0 ]]; then
 		script_restart; fi
