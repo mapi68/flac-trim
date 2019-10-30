@@ -22,36 +22,51 @@
 #################################################################################
 
 
+FT=flac-trim
+EXT=.flac
+M3EXT=.mp3
+M4EXT=.m4a
+OPUSEXT=.opus
+ID=tag
+IMG=folder
+PLF=00-flac_playlist.m3u
+PL3=00-mp3_playlist.m3u
+PL4=00-m4a_playlist.m3u
+PLOP=00-opus_playlist.m3u
+SILENCE="silenceremove=1:0:-60dB"
+DELAY="adelay=250|250"
+
+
 ffmpeg_flac_norm() {
 	echo "RMS Normalization to 0 dB..."
-	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
+	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","${SILENCE}","${DELAY}" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
 		-sample_fmt s16 $PATHSAVE/"${FILE}" -loglevel error
 }
 
 ffmpeg_flac() {
-	ffmpeg -i "${FILE}" -af "silenceremove=1:0:-60dB","adelay=250|250" \
+	ffmpeg -i "${FILE}" -af "${SILENCE}","${DELAY}" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
 		-sample_fmt s16 $PATHSAVE/"${FILE}" -loglevel error
 }
 
 ffmpeg_mp3() {
-	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
+	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","${SILENCE}","${DELAY}" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
 		-c:a libmp3lame -q:a $mp3vbr $PATHSAVE/"${FILE}"$M3EXT -loglevel error
 }
 
 ffmpeg_m4a() {
-	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
+	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","${SILENCE}","${DELAY}" \
 		-metadata GENRE="$GENRE" \
 		-c:v copy -c:a $LIB4 $M4AQ $PATHSAVE/"${FILE}"$M4EXT -loglevel error
 }
 
 ffmpeg_opus() {
-	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","silenceremove=1:0:-60dB","adelay=250|250" \
+	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","${SILENCE}","${DELAY}" \
 		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" $PATHSAVE/"${FILE}" -loglevel error
 }
@@ -122,7 +137,6 @@ compile_ffmpeg() {
 }
 
 
-FT=flac-trim
 if [ ! -f $FT.conf ]; then
 	tput clear
 	echo && echo -e '\e[91m' "*************	MISSING FILE *************" && echo
@@ -154,17 +168,6 @@ if [ ! -f /usr/bin/ffmpeg ]; then
 fi
 
 tput clear
-
-EXT=.flac
-M3EXT=.mp3
-M4EXT=.m4a
-OPUSEXT=.opus
-ID=tag
-IMG=folder
-PLF=00-flac_playlist.m3u
-PL3=00-mp3_playlist.m3u
-PL4=00-m4a_playlist.m3u
-PLOP=00-opus_playlist.m3u
 
 echo -e '\e[95m'"          __ _                 _        _ "
 echo "         / _| | __ _  ___     | |_ _ __(_)_ __ ___ "
