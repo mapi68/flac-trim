@@ -34,7 +34,7 @@ PL3=00-mp3_playlist.m3u
 PL4=00-m4a_playlist.m3u
 PLOP=00-opus_playlist.m3u
 SILENCE="silenceremove=1:0:-60dB"
-DELAY="adelay=250|250"
+DELAY="adelay=250|250|250|250|250|250"
 
 
 ffmpeg_flac_norm() {
