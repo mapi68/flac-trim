@@ -220,7 +220,7 @@ fi
 echo && echo
 echo "Please choose extension for your trimmed file(s):" && echo
 echo "1) FLAC" && echo "2) MP3" && echo "3) M4A" && echo "4) OPUS"
-echo "5) I want only to save all cover of $EXT file(s) in $PATHIMG" && echo
+echo "5) I want only to save all covers of $EXT file(s) in $PATHIMG" && echo
 read number2
 if [ "$number2" -ne 1 ] && [ "$number2" -ne 2 ] && [ "$number2" -ne 3 ] && [ "$number2" -ne 4 ] && [ "$number2" -ne 5 ]; then
 	script_restart; fi
