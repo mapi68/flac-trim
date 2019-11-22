@@ -40,21 +40,21 @@ DELAY="adelay=250|250|250|250|250|250"
 ffmpeg_flac_norm() {
 	echo "RMS Normalization to 0 dB..."
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","${SILENCE}","${DELAY}" \
-		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
+		-metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
 		-sample_fmt s16 $PATHSAVE/"${FILE}" -loglevel error
 }
 
 ffmpeg_flac() {
 	ffmpeg -i "${FILE}" -af "${SILENCE}","${DELAY}" \
-		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
+		-metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
 		-sample_fmt s16 $PATHSAVE/"${FILE}" -loglevel error
 }
 
 ffmpeg_mp3() {
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","${SILENCE}","${DELAY}" \
-		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
+		-metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
 		-c:a libmp3lame -q:a $mp3vbr $PATHSAVE/"${FILE}"$M3EXT -loglevel error
 }
@@ -67,7 +67,7 @@ ffmpeg_m4a() {
 
 ffmpeg_opus() {
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","${SILENCE}","${DELAY}" \
-		-metadata ENCODEDBY="$ENCODEDBY" -metadata GENRE="$GENRE" \
+		-metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" $PATHSAVE/"${FILE}" -loglevel error
 }
 
