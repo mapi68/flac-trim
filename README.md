@@ -5,7 +5,8 @@
 * [License](#license)
 
 ## Overview
-<b>FLAC-TRIM: a powerful bash script to trim FLAC, MP3, M4A and OPUS</b><br>
+<b>FLAC-TRIM is a powerful bash script to trim, normalize, encode, save cover of FLAC, MP3, M4A and OPUS files.<br>
+It also compile from source latest version of FFMPEG with libfdk_aac and download all dependencies to run.</b><br><br>
 
 <img src="https://i.postimg.cc/6pPZxfxk/1.png">
 
