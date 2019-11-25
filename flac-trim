@@ -95,7 +95,7 @@ script_restart() {
 		echo -e '\e[0m'"Restarting script in $i seconds..." && echo
 		sleep 1
 	done
-	exec ./$FT
+	exec $0
 }
 
 export_cover() {
