@@ -40,34 +40,29 @@ DELAY="adelay=250|250|250|250|250|250"
 ffmpeg_flac_norm() {
 	echo "RMS Normalization to 0 dB..."
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","${SILENCE}","${DELAY}" \
-		-metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
 		-sample_fmt s16 $PATHSAVE/"${FILE}" -loglevel error
 }
 
 ffmpeg_flac() {
 	ffmpeg -i "${FILE}" -af "${SILENCE}","${DELAY}" \
-		-metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
 		-sample_fmt s16 $PATHSAVE/"${FILE}" -loglevel error
 }
 
 ffmpeg_mp3() {
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","${SILENCE}","${DELAY}" \
-		-metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" \
 		-c:a libmp3lame -q:a $mp3vbr $PATHSAVE/"${FILE}"$M3EXT -loglevel error
 }
 
 ffmpeg_m4a() {
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","${SILENCE}","${DELAY}" \
-		-metadata GENRE="$GENRE" \
 		-c:v copy -c:a $LIB4 $M4AQ $PATHSAVE/"${FILE}"$M4EXT -loglevel error
 }
 
 ffmpeg_opus() {
 	ffmpeg -i "${FILE}" -af "volume=${DBLEVEL}dB","${SILENCE}","${DELAY}" \
-		-metadata GENRE="$GENRE" \
 		-metadata:s:v comment="" -metadata:s:v comment="Cover (front)" $PATHSAVE/"${FILE}" -loglevel error
 }
 
@@ -234,11 +229,11 @@ if [ $number2 -eq 5 ]; then
 	for FILE in *${EXT}; do
 		let n=n+1
 		echo "`ffprobe -i "${FILE}" -v quiet -print_format json -show_format -hide_banner`" > $ID
-		sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" $ID
+		sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" -e 's/\"artist/\"ARTIST/g' $ID
 		ARTIST=`grep ARTIST $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 		ALBUM=`grep ALBUM $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 		YEAR=`grep DATE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-		echo "Processing cover file" $n "of" `ls -1 | grep $EXT | wc -l`": $ARTIST - $ALBUM ($YEAR)"
+		echo "Processing cover file" $n "of" `ls -1 | grep $EXT | wc -l`": ${ARTIST} - ${ALBUM} ($YEAR)"
 		export_cover
 	done
 	rm -f $ID
@@ -289,7 +284,7 @@ for FILE in *${EXT}; do
 	let n=n+1
 	echo "Processing file" $n "of" `ls -1 | grep $EXT | wc -l`...
 	echo "`ffprobe -i "${FILE}" -v quiet -print_format json -show_format -hide_banner`" > $ID
-	sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" -e 's/\?//g' $ID
+	sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" -e 's/\?//g' -e 's/\"artist/\"ARTIST/g' -e 's/title/TITLE/g' $ID
 	ARTIST=`grep ARTIST $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	TITLE=`grep TITLE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	ALBUM=`grep ALBUM $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
@@ -306,7 +301,7 @@ for FILE in *${EXT}; do
 	echo "ARTIST:" $ARTIST
 	echo "ALBUM:" $ALBUM
 	echo "SONG TITLE:" $TITLE
-	echo "FILE NAME:" "${ARTIST} - ${TITLE}${EXT}"
+	echo "FILE NAME:" "${FILE}"
 	echo "YEAR:" $YEAR
 	echo "DURATION:" `printf '%dm:%ds\n' $(($DURATION%3600/60)) $(($DURATION%60))`
 	echo "BITRATE: $(($BITRATE/1024)) kBit/s"
