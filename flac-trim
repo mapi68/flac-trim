@@ -126,7 +126,7 @@ compile_ffmpeg() {
 	wget https://ffmpeg.org/releases/$LATEST
 	tar xvjf $LATEST && rm $LATEST && cd ffmpeg-*
 	./configure --prefix="/usr" --enable-gnutls --enable-gpl --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
-		--enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfre
+		--enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfree
 	make -j$cpu && make install && hash -r && ldconfig
 	cd .. && rm -rf ffmpeg-*
 }
