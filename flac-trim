@@ -116,7 +116,7 @@ lossy_data() {
 }
 
 compile_ffmpeg() {
-	echo && echo && echo -e '\e[95m'"Starting compile ffmpeg..." && echo && echo -e '\e[0m' && sleep 1
+	echo && echo && echo -e '\e[95m'"Starting compile ffmpeg... If fails, enable non-free repository" && echo && echo -e '\e[0m' && sleep 3
 	sudo apt-get install autoconf automake build-essential ccache libass-dev libfreetype6-dev libgpac-dev libvpx-dev \
 		libgnutls28-dev wget libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libx11-dev \
 		libfdk-aac-dev libssl-dev libopus-dev libxext-dev libxfixes-dev pkg-config texi2html zlib1g-dev \
