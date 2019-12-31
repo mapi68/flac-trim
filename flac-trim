@@ -144,7 +144,7 @@ if [ ! -f /usr/bin/bc ] || [ ! -f /usr/bin/file ] || [ ! -f /usr/bin/flac ] || [
 	tput clear
 	echo && echo -e '\e[91m' "*************	MISSING DEPENDENCIES *************" && echo
 	read -p "Do you want to install missing package(s)? (Y/n) " -n 1 -r -s
-	if ! [[ $REPLY =~ ^[Yy]$ ]]; then
+	if [[ $REPLY =~ ^[Nn]$ ]]; then
 		echo && echo && echo "Sorry but without these package I can't execute $FT" && echo && echo -e '\e[0m' && sleep 1 && exit 1
 	else
 		echo && echo && echo -e '\e[95m'"Starting install dependencies..." && echo && echo -e '\e[0m' && sleep 1
@@ -155,7 +155,7 @@ if [ ! -f /usr/bin/ffmpeg ]; then
 	tput clear
 	echo && echo -e '\e[91m' "*************	MISSING DEPENDENCIES *************" && echo
 	echo && read -p "Do you want to compile latest ffpmeg? [Y/n] " -n 1 -r -s
-	if ! [[ $REPLY =~ ^[Yy]$ ]]; then
+	if [[ $REPLY =~ ^[Nn]$ ]]; then
 		echo && echo && echo "Sorry but without ffmpeg I can't execute $FT" && echo && echo -e '\e[0m' && sleep 1 && exit 1
 	else
 		compile_ffmpeg
