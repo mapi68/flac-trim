@@ -127,7 +127,7 @@ compile_ffmpeg() {
 	tar xvjf $LATEST && rm $LATEST && cd ffmpeg-*
 	./configure --prefix="/usr" --enable-gnutls --enable-gpl --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
 		--enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfree
-	sudo make -j$cpu && sudo make install && sudo hash -r && sudo ldconfig
+	sudo make -j$cpu && sudo make install && sudo ldconfig
 	cd .. && rm -rf ffmpeg-*
 }
 
