@@ -181,7 +181,7 @@ if [[ $INSTALLED == $LATEST ]]; then
 else
 	echo -n "           " && echo -e '\e[44m'"   *** FOUND NEW VERSION $LATEST ***   " && echo -e '\e[49m'
 	echo -e '\e[91m' && read -p "   Do you want to upgrade ffpmeg to version $LATEST? [Y/n] " -n 1 -r -s
-	if [[ $REPLY =~ ^[Yy]$ ]]; then
+	if [[ $REPLY =~ ^[Nn]$ ]]; then
 		echo -e '\e[0m'
 		compile_ffmpeg
 	fi
