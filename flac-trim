@@ -9,7 +9,7 @@
 #                                                                               #
 #                                                                               #
 # MIT License                                                                   #
-# Copyright (c) 2019 Massimo Pissarello                                         #
+# Copyright (c) 2019-2021 Massimo Pissarello                                    #
 # Permission is hereby granted, free of charge, to any person obtaining a copy  #
 # of this software and associated documentation files (the "Software"), to deal #
 # in the Software without restriction, including without limitation the rights  #
@@ -124,7 +124,7 @@ compile_ffmpeg() {
 	LATEST=`lynx -dump https://www.ffmpeg.org/download.html | grep -m 1 "57. https" | awk -F' ' '{print $2}'`
 	cpu=`echo $(grep -c processor /proc/cpuinfo)`
 	wget $LATEST
-	tar xvjf ffmpeg-*.tar.bz2 && rm ffmpeg-*.tar.bz2 && cd ffmpeg-*
+	tar xvf ffmpeg-*.tar.xz && rm ffmpeg-*.tar.xz && cd ffmpeg-*
 	./configure --prefix="/usr" --enable-gnutls --enable-gpl --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
 		--enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfree
 	sudo make -j$cpu && sudo make install && sudo ldconfig
@@ -175,7 +175,7 @@ INSTALLED=`ffmpeg -version | awk -F' ' '{print $3}' | head -1`
 echo "             ffmpeg version $INSTALLED is installed"
 echo "           Checking for new version of ffmpeg..."
 LATEST=`lynx -dump https://www.ffmpeg.org/download.html | grep -m 1 "57. https" | awk -F' ' '{print $2}' | \
-	sed 's/.tar.bz2//g' | sed 's/https:\/\/www.ffmpeg.org\/releases\/ffmpeg-//g'`
+	sed 's/.tar.xz//g' | sed 's/https:\/\/www.ffmpeg.org\/releases\/ffmpeg-//g'`
 if [[ $INSTALLED == $LATEST ]]; then
 	echo -n "           " && echo -e '\e[46m'"   +++ You have latest version +++   " && echo -e '\e[49m'
 else
