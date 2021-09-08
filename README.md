@@ -21,8 +21,8 @@ This script works very good with <a href="https://www.ondesoft.com/spotify-conve
 ```bash
 wget https://raw.githubusercontent.com/mapi68/flac-trim/master/flac-trim.conf
 wget https://raw.githubusercontent.com/mapi68/flac-trim/master/flac-trim.bash
-chmod +x flac-trim*
-./flac-trim
+chmod +x flac-trim.bash
+./flac-trim.bash
 ```
 
 ## License
