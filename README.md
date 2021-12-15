@@ -9,11 +9,11 @@
 It also compile from source latest version of FFMPEG with libfdk_aac and download all dependencies to run.</b><br><br>
 This script works very good with <a href="https://www.ondesoft.com/spotify-converter-for-windows/">Spotify Downloader</a>
 
-<img src="https://github.com/mapi68/flac-trim/raw/master/images/1.png">
+<img src="images/1.png">
 
-<img src="https://github.com/mapi68/flac-trim/raw/master/images/1.png">
+<img src="images/1.png">
 
-<img src="https://github.com/mapi68/flac-trim/raw/master/images/1.png">
+<img src="images/1.png">
 
 
 ## Installation
