@@ -125,7 +125,7 @@ compile_ffmpeg() {
 	cpu=`echo $(grep -c processor /proc/cpuinfo)`
 	wget $LATEST
 	tar xvf ffmpeg-*.tar.xz && rm ffmpeg-*.tar.xz && cd ffmpeg-*
-	./configure --prefix="/usr" --enable-gnutls --enable-gpl --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
+	./configure --prefix="/usr/local" --enable-gnutls --enable-gpl --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
 		--enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfree
 	sudo make -j$cpu && sudo make install && sudo ldconfig
 	cd .. && sudo rm -rf ffmpeg-*
