@@ -151,7 +151,7 @@ if [ ! -f /usr/bin/bc ] || [ ! -f /usr/bin/file ] || [ ! -f /usr/bin/flac ] || [
 		sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install bc file flac opus-tools lynx -y
 	fi
 fi
-if [ ! -f /usr/bin/ffmpeg ]; then
+if [ ! -f /usr/local/bin/ffmpeg ]; then
 	tput clear
 	echo && echo -e '\e[91m' "*************	MISSING DEPENDENCIES *************" && echo
 	echo && read -p "Do you want to compile latest ffpmeg? [Y/n] " -n 1 -r -s
