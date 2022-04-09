@@ -286,7 +286,7 @@ for FILE in *${EXT}; do
 	echo "`ffprobe -i "${FILE}" -v quiet -print_format json -show_format -hide_banner`" > $ID
 	sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" -e 's/\?//g' -e 's/\"DATE/\"date/g' $ID
 	ARTIST=`grep artist $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-	TITLE=`grep title $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+	TITLE=`grep -E TITLE\|title $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	ALBUM=`grep album $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	YEAR=`grep date $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	DURATION=`grep duration $ID | awk -F': "' '{print $2}' | cut -d'.' -f1`
