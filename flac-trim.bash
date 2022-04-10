@@ -229,8 +229,8 @@ if [ $number2 -eq 5 ]; then
 	for FILE in *${EXT}; do
 		let n=n+1
 		echo "`ffprobe -i "${FILE}" -v quiet -print_format json -show_format -hide_banner`" > $ID
-		sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" -e 's/\"artist/\"ARTIST/g' $ID
-		ARTIST=`grep ARTIST $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+		sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" $ID
+		ARTIST=`grep album_artist $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 		ALBUM=`grep ALBUM $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 		YEAR=`grep DATE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 		echo "Processing cover file" $n "of" `ls -1 | grep $EXT | wc -l`": ${ARTIST} - ${ALBUM} ($YEAR)"
@@ -284,11 +284,11 @@ for FILE in *${EXT}; do
 	let n=n+1
 	echo "Processing file" $n "of" `ls -1 | grep $EXT | wc -l`...
 	echo "`ffprobe -i "${FILE}" -v quiet -print_format json -show_format -hide_banner`" > $ID
-	sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" -e 's/\?//g' -e 's/\"DATE/\"date/g' $ID
-	ARTIST=`grep artist $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-	TITLE=`grep -E TITLE\|title $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-	ALBUM=`grep album $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
-	YEAR=`grep date $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+	sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" -e 's/\?//g' $ID
+	ARTIST=`grep album_artist $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+	TITLE=`grep TITLE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+	ALBUM=`grep ALBUM $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
+	YEAR=`grep DATE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	DURATION=`grep duration $ID | awk -F': "' '{print $2}' | cut -d'.' -f1`
 	BITRATE=`grep bit_rate $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	SIZE=`grep size $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
