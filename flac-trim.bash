@@ -229,7 +229,7 @@ if [ $number2 -eq 5 ]; then
 	for FILE in *${EXT}; do
 		let n=n+1
 		echo "`ffprobe -i "${FILE}" -v quiet -print_format json -show_format -hide_banner`" > $ID
-		sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" $ID
+		sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" -e 's/\"album\"/\"ALBUM\"/g' -e 's/\"date\"/\"DATE\"/g' $ID
 		ARTIST=`grep album_artist $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 		ALBUM=`grep ALBUM $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 		YEAR=`grep DATE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
@@ -284,7 +284,7 @@ for FILE in *${EXT}; do
 	let n=n+1
 	echo "Processing file" $n "of" `ls -1 | grep $EXT | wc -l`...
 	echo "`ffprobe -i "${FILE}" -v quiet -print_format json -show_format -hide_banner`" > $ID
-	sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" -e 's/\?//g' $ID
+	sed -i -e 's/\\\"//g' -e 's/ \/ / /g' -e 's/\///g' -e "s/''//g" -e 's/\?//g' -e 's/\"title\"/\"TITLE\"/g' -e 's/\"album\"/\"ALBUM\"/g' -e 's/\"date\"/\"DATE\"/g' $ID
 	ARTIST=`grep album_artist $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	TITLE=`grep TITLE $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
 	ALBUM=`grep ALBUM $ID | awk -F': "' '{print $2}' | cut -d'"' -f1`
